@@ -1,0 +1,1 @@
+export const FetchUser = (uid) => `${API_URI}/api/users`
