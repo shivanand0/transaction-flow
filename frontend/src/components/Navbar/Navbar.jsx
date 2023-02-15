@@ -9,7 +9,7 @@ import { CustomAppbar } from './Styles';
 import PoweredBySVG from '../../assets/inline-powered-by.svg'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CustomBox } from './Styles';
-const Navbar = () => {
+const Navbar = ({ number, amount, isHome }) => {
     return (
         <>
             <CustomBox
@@ -33,25 +33,30 @@ const Navbar = () => {
                                 flex: 1
                             }}
                         >
-                            1234567890
+                            {number}
                         </Typography>
 
                         <Box>
-                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>10,000</strong>
+                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{amount}</strong>
                         </Box>
                     </Toolbar>
                 </Container>
             </CustomAppbar>
-            <CustomBox
-                sx={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    padding: "0 0 10px 10px",
-                    top: "120px"
-                }}
-            >
-                <ArrowBackIcon /> Back
-            </CustomBox>
+            {
+                !isHome && (
+                    <CustomBox
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            padding: "0 0 10px 10px",
+                            top: "120px"
+                        }}
+                    >
+                    <ArrowBackIcon /> Back
+                </CustomBox>
+                )
+            }
+            
         </>
     )
 }

@@ -6,15 +6,58 @@ import CardActions from '@mui/material/CardActions';
 import IconButton from '@mui/material/IconButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Button, TextField, Grid, Box } from '@mui/material';
+import { AppState } from '../../context/AppContext';
+import { CreateUser } from '../../config/API/Api';
 
 const MainCard = () => {
+
+  const { setAlert, setUser, user } = AppState()
+
   const [name, setName] = useState("")
   const [number, setNumber] = useState(null)
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(name, number, amount)
+    if(!name || !number || !amount){
+      setAlert({
+        open: true,
+        message: "Please fill all the Fields",
+        type: "error",
+      });
+      return;
+    }
+
+    const data = {
+      name: name,
+      number: number,
+      amount: amount
+    }
+
+    try {
+      const result = await CreateUser(data);
+      setAlert({
+        open: true,
+        //message: `Successful. Welcome ${result.user.name}`,
+        message: `Successful. Welcome`,
+        type: "success",
+      });
+
+      setUser({
+        name: name,
+        number: number,
+        amount: amount,
+      })
+      
+
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+      return;
+    }
   }
 
   return (

@@ -4,7 +4,7 @@ import Navbar from '../../components/Navbar/Navbar'
 const Home = () => {
   return (
     <div>
-        <Navbar />
+        <Navbar isHome={true} />
         <MainCard />
     </div>
   )
