@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { Routes, Route } from 'react-router-dom'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import Home from './pages/Home/Home'
+import Error_404 from './pages/Error/Error_404'
 
+function App() {
   return (
     <>
-      <h1>Hello World</h1>
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route path="*" element={<Error_404 />} />
+      </Routes>
     </>
   )
 }
