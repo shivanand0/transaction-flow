@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class ErrorDetails {
     private int statusCode;
-    private String context;
+    private String errorMessage;
 
     public ErrorDetails(int statusCode, String context) {
         this.statusCode = statusCode;
-        this.context = context;
+        this.errorMessage = context;
     }
 }

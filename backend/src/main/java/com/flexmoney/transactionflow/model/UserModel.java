@@ -23,8 +23,9 @@ public class UserModel {
     private String mobileNumber;
     private double creditLimit;
     private Long lastFourDigitsOfPan;
-    @ElementCollection
-    private List<Integer> lenderId;
+    @OneToMany(cascade= CascadeType.ALL)
+    @JoinColumn(name="userFid",referencedColumnName = "id")
+    private List<LenderIdModel> lenderId;
     @CreationTimestamp
     private Date createdAt;
     @UpdateTimestamp
