@@ -9,7 +9,14 @@ import { CustomAppbar } from './Styles';
 import PoweredBySVG from '../../assets/inline-powered-by.svg'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CustomBox } from './Styles';
-const Navbar = ({ number, amount, isHome }) => {
+import { AppState } from '../../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+
+const Navbar = ({ isHome }) => {
+    const navigate = useNavigate();
+    const goBack = () => navigate("/");
+    const { user } = AppState();
+
     return (
         <>
             <CustomBox
@@ -33,11 +40,13 @@ const Navbar = ({ number, amount, isHome }) => {
                                 flex: 1
                             }}
                         >
-                            {number}
+                            {
+                                !isHome && user.mobile
+                            }
                         </Typography>
 
                         <Box>
-                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{amount}</strong>
+                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{!isHome && user.amount}</strong>
                         </Box>
                     </Toolbar>
                 </Container>
@@ -49,8 +58,9 @@ const Navbar = ({ number, amount, isHome }) => {
                             display: "flex",
                             justifyContent: "flex-start",
                             padding: "0 0 10px 10px",
-                            top: "120px"
+                            top: "130px"
                         }}
+                        onClick={goBack}
                     >
                     <ArrowBackIcon /> Back
                 </CustomBox>

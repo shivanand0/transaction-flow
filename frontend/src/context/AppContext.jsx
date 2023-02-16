@@ -12,12 +12,17 @@ const AppContext = ({ children }) => {
 
   const [user, setUser] = useState({
     name: "",
+    uid: "",
     mobile: "",
     amount: null,
   });
 
+  const [lenderdetails, setLenderdetails] = useState({
+    name: ""
+  })
+
   return (
-      <App.Provider value={{alert, setAlert, user, setUser}} >
+      <App.Provider value={{alert, setAlert, user, setUser, lenderdetails, setLenderdetails}} >
           { children }
       </App.Provider>
   );
