@@ -1,10 +1,11 @@
 import React from 'react'
-import Banner from '../../components/Home/Banner'
+import MainCard from '../../components/Home/MainCard'
+import Navbar from '../../components/Navbar/Navbar'
 const Home = () => {
   return (
     <div>
-        Home
-        <Banner />
+        {/* <Navbar isHome={true} /> */}
+        <MainCard />
     </div>
   )
 }
