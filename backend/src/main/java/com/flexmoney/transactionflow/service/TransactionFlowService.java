@@ -1,9 +1,6 @@
 package com.flexmoney.transactionflow.service;
 import com.flexmoney.transactionflow.model.*;
-import com.flexmoney.transactionflow.repository.ILenderIdRepository;
-import com.flexmoney.transactionflow.repository.ILenderInfoRepository;
-import com.flexmoney.transactionflow.repository.ILenderRepository;
-import com.flexmoney.transactionflow.repository.IUserRepository;
+import com.flexmoney.transactionflow.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +13,8 @@ import java.util.List;
 public class TransactionFlowService implements ITransactionFlowService {
         @Autowired
         private IUserRepository userRepository;
+        @Autowired
+        private ITrackStageRepository trackStageRepository;
 
         @Autowired
         private ILenderInfoRepository lenderInfoRepository;
@@ -26,7 +25,7 @@ public class TransactionFlowService implements ITransactionFlowService {
         private ILenderIdRepository lenderIdRepository;
 
         @Override
-        public ResponseEntity<UserDTO> saveUser(UserDTO userDTO){
+        public ResponseEntity<UserResponse> saveUser(UserDTO userDTO){
                 UserModel user = new UserModel();
                 user.setUserName(userDTO.getUserName());
                 user.setMobileNumber(userDTO.getMobileNumber());
@@ -38,10 +37,30 @@ public class TransactionFlowService implements ITransactionFlowService {
                         lenderIdModelList.add(lenderIdModel);
                 }
                 user.setLenderId(lenderIdModelList);
-                userRepository.save(user);
-                return new ResponseEntity<>(userDTO,HttpStatus.CREATED);
+                UserModel savedUser=userRepository.save(user);
+                TrackStageModel trackStage = new TrackStageModel();
+                Long userId=savedUser.getId();
+                trackStage.setUserId(userId);
+                trackStage.setAmount(userDTO.getAmount());
+                TrackStageModel savedTrackStage=trackStageRepository.save(trackStage);
+                Long trackId=savedTrackStage.getTrackId();
+                //return userId, trackId, status-code
+                UserResponse userResponse =new UserResponse();
+                userResponse.setUserId(userId);
+                userResponse.setTrackId(trackId);
+                userResponse.setStatusCode(HttpStatus.CREATED.value());
+                return new ResponseEntity<>(userResponse,HttpStatus.CREATED);
         }
 
+        @Override
+        public ResponseEntity<?> saveTrackStage(Long trackId,TrackStageDTO trackStageDTO) {
+                TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
+                Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
+                Integer selectedTenureId = trackStageDTO.getSelectedTenureId();
+                trackStageRepository.updateRemainingFieldsById(selection,trackId,selectedLenderId,selectedTenureId);
+                return new ResponseEntity<>("Success",HttpStatus.CREATED);
+        }
+        //fetch user details from getDetails() api
         @Override
         public LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO){
 
