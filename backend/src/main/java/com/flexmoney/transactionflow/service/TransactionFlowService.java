@@ -1,18 +1,29 @@
 package com.flexmoney.transactionflow.service;
-import com.flexmoney.transactionflow.model.UserDTO;
-import com.flexmoney.transactionflow.model.UserModel;
-import com.flexmoney.transactionflow.repository.ITransactionFlowRepository;
+import com.flexmoney.transactionflow.model.*;
+import com.flexmoney.transactionflow.repository.ILenderIdRepository;
+import com.flexmoney.transactionflow.repository.ILenderInfoRepository;
+import com.flexmoney.transactionflow.repository.ILenderRepository;
+import com.flexmoney.transactionflow.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
         @Autowired
-        private ITransactionFlowRepository ITransactionFlowRepository;
+        private IUserRepository userRepository;
+
+        @Autowired
+        private ILenderInfoRepository lenderInfoRepository;
+
+        @Autowired
+        private ILenderRepository lenderRepository;
+        @Autowired
+        private ILenderIdRepository lenderIdRepository;
 
         @Override
         public ResponseEntity<UserDTO> saveUser(UserDTO userDTO){
@@ -21,8 +32,91 @@ public class TransactionFlowService implements ITransactionFlowService {
                 user.setMobileNumber(userDTO.getMobileNumber());
                 user.setCreditLimit(50000.00);
                 user.setLastFourDigitsOfPan(1234L);
-                user.setLenderId(Arrays.asList(1, 2, 3));
-                ITransactionFlowRepository.save(user);
+                List<LenderIdModel> lenderIdModelList= new ArrayList<>();
+                for (int i = 1; i <= 3; i++) {
+                        LenderIdModel lenderIdModel= LenderIdModel.builder().lenderId(i).build();
+                        lenderIdModelList.add(lenderIdModel);
+                }
+                user.setLenderId(lenderIdModelList);
+                userRepository.save(user);
                 return new ResponseEntity<>(userDTO,HttpStatus.CREATED);
         }
+
+        @Override
+        public LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO){
+
+                LenderModel lender=lenderRepository.findByLenderName(lenderInfoDTO.getLender().getLenderName());
+                LenderInfoModel lenderInfo;
+                if(lender!=null){
+                        lenderInfo = LenderInfoModel.builder()
+                                .lender(lender)
+                                .tenure(lenderInfoDTO.getTenure())
+                                .tenureType(lenderInfoDTO.getTenureType())
+                                .rateOfInterest(lenderInfoDTO.getRateOfInterest())
+                                .build();
+                }
+                else {
+                        lenderInfo = LenderInfoModel.builder()
+                                .lender(lenderInfoDTO.getLender())
+                                .tenure(lenderInfoDTO.getTenure())
+                                .tenureType(lenderInfoDTO.getTenureType())
+                                .rateOfInterest(lenderInfoDTO.getRateOfInterest())
+                                .build();
+                }
+                return lenderInfoRepository.save(lenderInfo);
+        }
+        @Override
+        public Details getDetails() {
+                List<LenderIdModel> lenderIdModelList= lenderIdRepository.findAllByUserFid(2);
+                List<Integer> userPreApprovedLenders = new ArrayList<>();
+                lenderIdModelList.forEach(lender->userPreApprovedLenders.add(lender.getLenderId()));
+                double amount = 10000;
+
+                List<LenderDetails> lenderDetailsList = new ArrayList<>();
+
+
+                for (Integer lenderID : userPreApprovedLenders) {
+
+                        List<LenderInfoModel> lenderInfo = lenderInfoRepository.findAllByLenderId(lenderID);
+                        List<EmiDetails> emiDetailsList = new ArrayList<>();
+
+                        for (LenderInfoModel lenderI : lenderInfo) {
+                                double principal = amount;
+                                double rate = lenderI.getRateOfInterest() / (12 * 100);
+                                Integer time = lenderI.getTenure();
+                                Integer emi;
+                                double totalInterest;
+                                if(rate!=0){
+                                        emi = (int) Math.ceil((principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1));
+                                        totalInterest=(emi*time) - principal;
+                                }
+                                else{
+                                        emi= (int) Math.ceil(principal/time);
+                                        totalInterest=0;
+                                }
+
+                                EmiDetails emiDetails = EmiDetails.builder()
+                                        .loanDuration(time)
+                                        .interestRate(lenderI.getRateOfInterest())
+                                        .monthlyInstallment(emi)
+                                        .totalInterest(totalInterest)
+                                        .loanAmount(principal)
+                                        .tenureType(lenderI.getTenureType())
+                                        .build();
+                                emiDetailsList.add(emiDetails);
+                        }
+                        LenderDetails lenderDetails = LenderDetails.builder()
+                                .lenderId(lenderID)
+                                .lenderName(lenderRepository.findById(lenderID).get().getLenderName())
+                                .lenderType("EMI")
+                                .emiDetailsList(emiDetailsList)
+                                .build();
+
+                        lenderDetailsList.add(lenderDetails);
+                }
+                return Details.builder()
+                        .lenderDetailsList(lenderDetailsList)
+                        .build();
+        }
+
 }
