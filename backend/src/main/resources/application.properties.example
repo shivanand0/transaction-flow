@@ -1,6 +1,0 @@
-spring.jpa.hibernate.ddl-auto=update
-spring.datasource.url=jdbc:postgresql://localhost:5432/test-db?stringtype=unspecified
-spring.datasource.username=postgres
-spring.datasource.password=root
-spring.datasource.driver-class-name=org.postgresql.Driver
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
