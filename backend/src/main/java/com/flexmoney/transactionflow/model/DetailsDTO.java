@@ -1,16 +1,13 @@
 package com.flexmoney.transactionflow.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private UUID trackId;
+public class DetailsDTO {
     private Long userId;
-    private Integer statusCode;
 }
