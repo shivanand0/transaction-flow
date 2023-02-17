@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 public class TransactionFlowApi {
         @Autowired
@@ -18,7 +20,7 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("trackStage/{trackId}")
-        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("trackId") Long trackId, @Valid @RequestBody TrackStageDTO trackStageDTO){
+        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("trackId") UUID trackId, @Valid @RequestBody TrackStageDTO trackStageDTO){
                 return transactionFlowService.saveTrackStage(trackId,trackStageDTO);
         }
         @PostMapping("/addLender")
@@ -31,7 +33,7 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("/details")
-        public Details getDetails(){
-                return transactionFlowService.getDetails();
+        public Details getDetails(@RequestBody DetailsDTO detailsDTO){
+                return transactionFlowService.getDetails(detailsDTO);
         }
 }

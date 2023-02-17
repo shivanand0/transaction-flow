@@ -12,6 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Details {
+
+    private String userName;
+
+    private String mobileNumber;
+
+    private double amount;
     private List<LenderDetails> lenderDetailsList;
 
 }

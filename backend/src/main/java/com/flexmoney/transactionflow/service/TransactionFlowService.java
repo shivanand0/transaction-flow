@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
@@ -42,8 +43,9 @@ public class TransactionFlowService implements ITransactionFlowService {
                 Long userId=savedUser.getId();
                 trackStage.setUserId(userId);
                 trackStage.setAmount(userDTO.getAmount());
+                trackStage.setSelection(TrackStageModel.selectionStage.LENDER_SELECTION);
                 TrackStageModel savedTrackStage=trackStageRepository.save(trackStage);
-                Long trackId=savedTrackStage.getTrackId();
+                UUID trackId=savedTrackStage.getTrackId();
                 //return userId, trackId, status-code
                 UserResponse userResponse =new UserResponse();
                 userResponse.setUserId(userId);
@@ -53,7 +55,7 @@ public class TransactionFlowService implements ITransactionFlowService {
         }
 
         @Override
-        public ResponseEntity<?> saveTrackStage(Long trackId,TrackStageDTO trackStageDTO) {
+        public ResponseEntity<?> saveTrackStage(UUID trackId,TrackStageDTO trackStageDTO) {
                 TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
                 Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
                 Integer selectedTenureId = trackStageDTO.getSelectedTenureId();
@@ -85,11 +87,14 @@ public class TransactionFlowService implements ITransactionFlowService {
                 return lenderInfoRepository.save(lenderInfo);
         }
         @Override
-        public Details getDetails() {
-                List<LenderIdModel> lenderIdModelList= lenderIdRepository.findAllByUserFid(2);
+        public Details getDetails(DetailsDTO detailsDTO) {
+                Long userId=detailsDTO.getUserId();
+                List<LenderIdModel> lenderIdModelList= lenderIdRepository.findAllByUserFid(Math.toIntExact(userId));
                 List<Integer> userPreApprovedLenders = new ArrayList<>();
                 lenderIdModelList.forEach(lender->userPreApprovedLenders.add(lender.getLenderId()));
-                double amount = 10000;
+
+                TrackStageModel trackStageModel = trackStageRepository.findByUserId(userId);
+                double amount=trackStageModel.getAmount();
 
                 List<LenderDetails> lenderDetailsList = new ArrayList<>();
 
@@ -134,6 +139,9 @@ public class TransactionFlowService implements ITransactionFlowService {
                         lenderDetailsList.add(lenderDetails);
                 }
                 return Details.builder()
+                        .userName(userRepository.findById(userId).get().getUserName())
+                        .mobileNumber(userRepository.findById(userId).get().getMobileNumber())
+                        .amount(amount)
                         .lenderDetailsList(lenderDetailsList)
                         .build();
         }

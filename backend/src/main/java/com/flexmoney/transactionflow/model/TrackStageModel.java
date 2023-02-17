@@ -9,14 +9,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrackStageModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long trackId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    public UUID trackId;
     @NotNull(message = "Please send the userId")
     private Long userId;
     @NotNull(message = "Please send the amount")
