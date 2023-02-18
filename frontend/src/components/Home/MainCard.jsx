@@ -8,10 +8,13 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Button, TextField, Grid, Box } from '@mui/material';
 import { AppState } from '../../context/AppContext';
 import { CreateUser } from '../../config/API/Api';
+import { useNavigate, redirect } from 'react-router-dom';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
 
 const MainCard = () => {
-
-  const { setAlert, setUser, user } = AppState()
+  const navigate = useNavigate();
+  const { setAlert, setUser, loading, setLoading } = AppState()
 
   const [name, setName] = useState("")
   const [number, setNumber] = useState(null)
@@ -19,7 +22,7 @@ const MainCard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!name || !number || !amount){
+    if (!name || !number || !amount) {
       setAlert({
         open: true,
         message: "Please fill all the Fields",
@@ -28,27 +31,26 @@ const MainCard = () => {
       return;
     }
 
-    const data = {
-      name: name,
-      number: number,
-      amount: amount
-    }
-
     try {
-      const result = await CreateUser(data);
+      setLoading(true)
+      const result = await CreateUser(name, number, amount);
+      setLoading(false)
+      setUser({
+        name: name,
+        uid: result.data.userId,
+        mobile: number,
+        amount: amount,
+        trackId: result.data.trackId
+      })
+
       setAlert({
         open: true,
-        //message: `Successful. Welcome ${result.user.name}`,
-        message: `Successful. Welcome`,
+        message: `Successful. Welcome ${name}...Redirecting`,
         type: "success",
       });
 
-      setUser({
-        name: name,
-        number: number,
-        amount: amount,
-      })
-      
+      console.log(result.data.trackId)
+      return navigate(`/transaction/lender-selection/${result.data.trackId}`)
 
     } catch (error) {
       setAlert({
@@ -124,14 +126,30 @@ const MainCard = () => {
         </CardContent>
         <CardActions style={{ display: "flex", justifyContent: "center" }} >
           <IconButton aria-label="add to favorites">
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleSubmit}
-              style={{ backgroundColor: "#4DBE0E" }}
-            >
-              Continue <ArrowForwardIcon sx={{ marginLeft: "10px" }} />
-            </Button>
+            {
+              loading && <LoadingButton
+                loading
+                loadingPosition="start"
+                startIcon={<SaveIcon />}
+                variant="contained"
+                sx={{ backgroundColor: "#4DBE0E" }}
+              >
+                Continue
+              </LoadingButton>
+
+            }
+            {
+              !loading && <Button
+                variant="contained"
+                size="large"
+                onClick={handleSubmit}
+                sx={{ backgroundColor: "#4DBE0E" }}
+              >
+                Continue <ArrowForwardIcon sx={{ marginLeft: "10px" }} />
+              </Button>
+
+            }
+
           </IconButton>
         </CardActions>
       </Card>
