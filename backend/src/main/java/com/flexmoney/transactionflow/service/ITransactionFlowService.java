@@ -10,4 +10,7 @@ public interface ITransactionFlowService {
     ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO);
     LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
     Details getDetails(DetailsDTO detailsDTO);
+
+    ResponseEntity<TwoFVerificationResponse> OtpVerifivation(String verificationType, TwoFVerificationDTO twoFVerificationDTO);
+
 }
