@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -28,7 +29,7 @@ public class TransactionModel {
 
 
     @NotNull(message = "lenderInfoId required")
-    private Long lenderInfoId;
+    private Integer lenderInfoId;
 
     /*
     // lenderInfoId will give lenderId, tenureId, rateOfInterest
@@ -38,7 +39,7 @@ public class TransactionModel {
     // trackId can fetch amount
     private double amount;
      */
-    private enum status{SUCCESS, FAIL}
+    private String status;
 
     @CreationTimestamp
     private Date createdAt;

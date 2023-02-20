@@ -26,6 +26,9 @@ public class TransactionFlowService implements ITransactionFlowService {
         @Autowired
         private ILenderIdRepository lenderIdRepository;
 
+        @Autowired
+        private ITransactionRepository transactionRepository;
+
         @Override
         public ResponseEntity<UserResponse> saveUser(UserDTO userDTO){
                 UserModel user = new UserModel();
@@ -196,12 +199,37 @@ public class TransactionFlowService implements ITransactionFlowService {
                         statusCode = HttpStatus.BAD_REQUEST;
                         status=false;
                 }
-                var twoFVerificationResponse = new TwoFVerificationResponse();
+            TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
                 twoFVerificationResponse.setStatus(status);
                 twoFVerificationResponse.setStatusCode(statusCode.value());
                 twoFVerificationResponse.setMessage(msg);
 
                 return new ResponseEntity<>(twoFVerificationResponse, statusCode);
     }
+
+        @Override
+        public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
+                UUID trackId = transactionDTO.getTrackId();
+                String status = transactionDTO.getStatus();
+
+                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+                long userId = trackStageModel.getUserId();
+
+                Integer lenderInfoId = trackStageModel.getSelectedTenureId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
+
+                TransactionModel transaction = new TransactionModel();
+                transaction.setTrackId(trackId);
+                transaction.setUserId(userId);
+                transaction.setLenderInfoId(lenderInfoId);
+                transaction.setStatus(status);
+                transactionRepository.save(transaction);
+
+                TransactionResponse transactionResponse = new TransactionResponse();
+                transactionResponse.setStatus(true);
+                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
+                transactionResponse.setMessage("TRANSACTION");
+
+                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+        }
 
 }
