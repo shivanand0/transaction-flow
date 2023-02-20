@@ -62,8 +62,8 @@ public class TransactionFlowService implements ITransactionFlowService {
         public ResponseEntity<?> saveTrackStage(UUID trackId,TrackStageDTO trackStageDTO) {
                 TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
                 Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
-                Integer selectedTenureId = trackStageDTO.getSelectedTenureId();
-                trackStageRepository.updateRemainingFieldsById(selection,trackId,selectedLenderId,selectedTenureId);
+                Integer selectedLenderInfoId = trackStageDTO.getSelectedLenderInfoId();
+                trackStageRepository.updateRemainingFieldsById(selection,trackId,selectedLenderId,selectedLenderInfoId);
                 return new ResponseEntity<>("Success",HttpStatus.CREATED);
         }
         //fetch user details from getDetails() api
@@ -113,6 +113,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                                 double rate = lenderI.getRateOfInterest() / (12 * 100);
                                 Integer time = lenderI.getTenure();
                                 Integer emi;
+                                Integer lenderInfoId = lenderI.getId();
                                 double totalInterest;
                                 if(rate!=0){
                                         emi = (int) Math.ceil((principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1));
@@ -124,6 +125,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                                 }
 
                                 EmiDetails emiDetails = EmiDetails.builder()
+                                        .lenderInfoId(lenderInfoId)
                                         .loanDuration(time)
                                         .interestRate(lenderI.getRateOfInterest())
                                         .monthlyInstallment(emi)
@@ -199,7 +201,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                         statusCode = HttpStatus.BAD_REQUEST;
                         status=false;
                 }
-            TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
+                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
                 twoFVerificationResponse.setStatus(status);
                 twoFVerificationResponse.setStatusCode(statusCode.value());
                 twoFVerificationResponse.setMessage(msg);
@@ -215,7 +217,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
                 long userId = trackStageModel.getUserId();
 
-                Integer lenderInfoId = trackStageModel.getSelectedTenureId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
+                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
 
                 TransactionModel transaction = new TransactionModel();
                 transaction.setTrackId(trackId);
@@ -227,7 +229,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 TransactionResponse transactionResponse = new TransactionResponse();
                 transactionResponse.setStatus(true);
                 transactionResponse.setStatusCode(HttpStatus.CREATED.value());
-                transactionResponse.setMessage("TRANSACTION");
+                transactionResponse.setMessage("Successful");
 
                 return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
         }

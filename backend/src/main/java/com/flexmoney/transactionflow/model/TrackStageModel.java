@@ -27,7 +27,7 @@ public class TrackStageModel {
     @Enumerated(EnumType.STRING)
     private selectionStage selection;
     private Integer selectedLenderId;
-    private Integer selectedTenureId;
+    private Integer selectedLenderInfoId;
     @CreationTimestamp
     private Date createdAt;
     @UpdateTimestamp
