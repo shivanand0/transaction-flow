@@ -15,7 +15,7 @@ public class TransactionFlowApi {
         private ITransactionFlowService transactionFlowService;
 
         @PostMapping("/users")
-        public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserDTO userDTO){
+        public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws Exception {
             return transactionFlowService.saveUser(userDTO);
         }
 
@@ -33,7 +33,7 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("/details")
-        public Details getDetails(@RequestBody DetailsDTO detailsDTO){
-                return transactionFlowService.getDetails(detailsDTO);
+        public Details getDetails(@RequestBody UuidDTO uuidDTO){
+                return transactionFlowService.getDetails(uuidDTO.getUuid());
         }
 }

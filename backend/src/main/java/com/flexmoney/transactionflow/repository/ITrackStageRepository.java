@@ -17,5 +17,4 @@ public interface ITrackStageRepository extends JpaRepository<TrackStageModel,Int
     @Query(value = "UPDATE TrackStageModel t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedTenureId = :selectedTenureId WHERE t.trackId = :id")
     void updateRemainingFieldsById(@Param("selection") TrackStageModel.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedTenureId") Integer selectedTenureId);
 
-    TrackStageModel findByUserId(Long userId);
 }
