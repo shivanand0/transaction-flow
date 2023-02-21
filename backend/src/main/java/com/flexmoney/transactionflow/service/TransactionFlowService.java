@@ -1,4 +1,5 @@
 package com.flexmoney.transactionflow.service;
+import com.flexmoney.transactionflow.error.CreditLimitException;
 import com.flexmoney.transactionflow.model.*;
 import com.flexmoney.transactionflow.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,11 +85,13 @@ public class TransactionFlowService implements ITransactionFlowService {
     }
 
     @Override
-    public ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO) {
+    public ResponseEntity<?> saveTrackStage(UUID detailsId, TrackStageDTO trackStageDTO) {
+        EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+        UUID trackId = essentialDetails.getTrackId();
         TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
         Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
-        Integer selectedTenureId = trackStageDTO.getSelectedTenureId();
-        trackStageRepository.updateRemainingFieldsById(selection, trackId, selectedLenderId, selectedTenureId);
+        Integer selectedLenderInfoId = trackStageDTO.getSelectedLenderInfoId();
+        trackStageRepository.updateRemainingFieldsById(selection, trackId, selectedLenderId, selectedLenderInfoId);
         return new ResponseEntity<>("Success", HttpStatus.CREATED);
     }
 
@@ -180,83 +183,85 @@ public class TransactionFlowService implements ITransactionFlowService {
 
     @Override
     public ResponseEntity<TwoFVerificationResponse> OtpVerifivation(String verificationType, TwoFVerificationDTO twoFVerificationDTO) {
-                UUID trackId = twoFVerificationDTO.getTrackId();
-                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
-                boolean status;
-                long expectedMobileOtp = 1234;
-                String msg;
-                HttpStatus statusCode;
-
-                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-                long userId = trackStageModel.getUserId();
-                UserModel userModel = userRepository.findById(userId).get();
-
-                double txnAmnt = trackStageModel.getAmount();
-                double creditLimit = userModel.getCreditLimit();
-                int comp = Double.compare(txnAmnt, creditLimit);
-                if(comp == -1){
-                        msg = "Transaction Amount is greater than Credit Limit";
-                        statusCode = HttpStatus.ACCEPTED;
-                        status=false;
-                }
-                else if(verificationType.equals("PAN")){
-                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
-
-                        if(receivedOtp == lastFourDigitsOfPan){
-                                msg = "PAN Verification Successfull";
-                                statusCode = HttpStatus.ACCEPTED;
-                                status=true;
-                        } else{
-                                msg = "PAN Verification Failed";
-                                statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status=false;
-                        }
-                } else if(verificationType.equals("MOBILE")){
-                        if(receivedOtp == expectedMobileOtp){
-                                msg = "Mobile Verification Successfull";
-                                statusCode = HttpStatus.ACCEPTED;
-                                status=true;
-                        } else{
-                                msg = "Mobile Verification Failed";
-                                statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status=false;
-                        }
-                } else{
-                        msg = "Bad Request";
-                        statusCode = HttpStatus.BAD_REQUEST;
-                        status=false;
-                }
-                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
-                twoFVerificationResponse.setStatus(status);
-                twoFVerificationResponse.setStatusCode(statusCode.value());
-                twoFVerificationResponse.setMessage(msg);
-
-                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
+//                UUID trackId = twoFVerificationDTO.getTrackId();
+//                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
+//                boolean status;
+//                long expectedMobileOtp = 1234;
+//                String msg;
+//                HttpStatus statusCode;
+//
+//                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+//                long userId = trackStageModel.getUserId();
+//                UserModel userModel = userRepository.findById(userId).get();
+//
+//                double txnAmnt = trackStageModel.getAmount();
+//                double creditLimit = userModel.getCreditLimit();
+//                int comp = Double.compare(txnAmnt, creditLimit);
+//                if(comp == -1){
+//                        msg = "Transaction Amount is greater than Credit Limit";
+//                        statusCode = HttpStatus.ACCEPTED;
+//                        status=false;
+//                }
+//                else if(verificationType.equals("PAN")){
+//                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+//
+//                        if(receivedOtp == lastFourDigitsOfPan){
+//                                msg = "PAN Verification Successfull";
+//                                statusCode = HttpStatus.ACCEPTED;
+//                                status=true;
+//                        } else{
+//                                msg = "PAN Verification Failed";
+//                                statusCode = HttpStatus.EXPECTATION_FAILED;
+//                                status=false;
+//                        }
+//                } else if(verificationType.equals("MOBILE")){
+//                        if(receivedOtp == expectedMobileOtp){
+//                                msg = "Mobile Verification Successfull";
+//                                statusCode = HttpStatus.ACCEPTED;
+//                                status=true;
+//                        } else{
+//                                msg = "Mobile Verification Failed";
+//                                statusCode = HttpStatus.EXPECTATION_FAILED;
+//                                status=false;
+//                        }
+//                } else{
+//                        msg = "Bad Request";
+//                        statusCode = HttpStatus.BAD_REQUEST;
+//                        status=false;
+//                }
+//                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
+//                twoFVerificationResponse.setStatus(status);
+//                twoFVerificationResponse.setStatusCode(statusCode.value());
+//                twoFVerificationResponse.setMessage(msg);
+//
+//                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
+        return null;
     }
 
         @Override
         public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
-                UUID trackId = transactionDTO.getTrackId();
-                String status = transactionDTO.getStatus();
-
-                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-                long userId = trackStageModel.getUserId();
-
-                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
-
-                TransactionModel transaction = new TransactionModel();
-                transaction.setTrackId(trackId);
-                transaction.setUserId(userId);
-                transaction.setLenderInfoId(lenderInfoId);
-                transaction.setStatus(status);
-                transactionRepository.save(transaction);
-
-                TransactionResponse transactionResponse = new TransactionResponse();
-                transactionResponse.setStatus(true);
-                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
-                transactionResponse.setMessage("Successful");
-
-                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+//                UUID trackId = transactionDTO.getTrackId();
+//                String status = transactionDTO.getStatus();
+//
+//                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+//                long userId = trackStageModel.getUserId();
+//
+//                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
+//
+//                TransactionModel transaction = new TransactionModel();
+//                transaction.setTrackId(trackId);
+//                transaction.setUserId(userId);
+//                transaction.setLenderInfoId(lenderInfoId);
+//                transaction.setStatus(status);
+//                transactionRepository.save(transaction);
+//
+//                TransactionResponse transactionResponse = new TransactionResponse();
+//                transactionResponse.setStatus(true);
+//                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
+//                transactionResponse.setMessage("Successful");
+//
+//                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+            return null;
         }
 
 }

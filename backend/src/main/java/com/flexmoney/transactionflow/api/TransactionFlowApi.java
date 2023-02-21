@@ -20,9 +20,9 @@ public class TransactionFlowApi {
             return transactionFlowService.saveUser(userDTO);
         }
 
-        @PostMapping("trackStage/{trackId}")
-        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("trackId") UUID trackId, @Valid @RequestBody TrackStageDTO trackStageDTO){
-                return transactionFlowService.saveTrackStage(trackId,trackStageDTO);
+        @PostMapping("trackStage/{detailsId}")
+        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("detailsId") UUID detailsId, @Valid @RequestBody TrackStageDTO trackStageDTO){
+                return transactionFlowService.saveTrackStage(detailsId,trackStageDTO);
         }
         @PostMapping("/addLender")
         public ResponseEntity<?> addLender(@RequestBody LenderInfoDTO lenderInfoDTO){
