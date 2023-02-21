@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 public class TransactionFlowApi {
         @Autowired
         private ITransactionFlowService transactionFlowService;
