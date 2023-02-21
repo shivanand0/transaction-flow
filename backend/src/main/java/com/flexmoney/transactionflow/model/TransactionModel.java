@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -21,12 +20,11 @@ public class TransactionModel {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID txnId;
 
-    @NotNull(message = "trackId required")
-    private UUID trackId;
+    @NotNull(message = "detailsId required")
+    private UUID detailsId;
 
     @NotNull(message = "userId required")
     private Long userId;
-
 
     @NotNull(message = "lenderInfoId required")
     private Integer lenderInfoId;

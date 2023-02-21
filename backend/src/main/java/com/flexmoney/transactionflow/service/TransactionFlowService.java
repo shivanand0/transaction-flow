@@ -231,28 +231,30 @@ public class TransactionFlowService implements ITransactionFlowService {
 
         @Override
         public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
-//                UUID trackId = transactionDTO.getTrackId();
-//                String status = transactionDTO.getStatus();
-//
-//                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-//                long userId = trackStageModel.getUserId();
-//
-//                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId(); // storing lenderInfoId in selectedTenureId field, selectedTenureId to be renamed to lenderInfoId
-//
-//                TransactionModel transaction = new TransactionModel();
-//                transaction.setTrackId(trackId);
-//                transaction.setUserId(userId);
-//                transaction.setLenderInfoId(lenderInfoId);
-//                transaction.setStatus(status);
-//                transactionRepository.save(transaction);
-//
-//                TransactionResponse transactionResponse = new TransactionResponse();
-//                transactionResponse.setStatus(true);
-//                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
-//                transactionResponse.setMessage("Successful");
-//
-//                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
-            return null;
+                UUID detailsId = transactionDTO.getDetailsId();
+                String status = transactionDTO.getStatus();
+
+                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetails.getUserId();
+                UUID trackId = essentialDetails.getTrackId();
+
+                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+
+                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+
+                TransactionModel transaction = new TransactionModel();
+                transaction.setDetailsId(detailsId);
+                transaction.setUserId(userId);
+                transaction.setLenderInfoId(lenderInfoId);
+                transaction.setStatus(status);
+                transactionRepository.save(transaction);
+
+                TransactionResponse transactionResponse = new TransactionResponse();
+                transactionResponse.setStatus(true);
+                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
+                transactionResponse.setMessage("Successful");
+
+                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
         }
 
 }

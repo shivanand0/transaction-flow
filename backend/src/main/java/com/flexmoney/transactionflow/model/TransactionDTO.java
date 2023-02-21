@@ -10,6 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionDTO {
-    private UUID trackId;
+    private UUID detailsId;
     private String status;
 }
