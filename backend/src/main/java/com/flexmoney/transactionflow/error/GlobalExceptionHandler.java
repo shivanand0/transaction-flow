@@ -15,9 +15,9 @@ import java.util.Objects;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> handleException() {
-        String message="Internal Server Error";
-        ErrorDetails errorDetailsResponse = new ErrorDetails(HttpStatus.INTERNAL_SERVER_ERROR.value(), message);
+    public ResponseEntity<ErrorDetails> handleException(Exception e) {
+//        String message="Internal Server Error";
+        ErrorDetails errorDetailsResponse = new ErrorDetails(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         return new ResponseEntity<>(errorDetailsResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     @Override
@@ -27,4 +27,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorDetails errorDetailsResponse = new ErrorDetails(HttpStatus.BAD_REQUEST.value(),message);
         return new ResponseEntity<>(errorDetailsResponse, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CreditLimitException.class)
+    public ResponseEntity<ErrorDetails> creditLimitException(CreditLimitException e){
+        ErrorDetails errorDetailsResponse = new ErrorDetails(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return new ResponseEntity<>(errorDetailsResponse, HttpStatus.BAD_REQUEST);
+    }
+
 }
