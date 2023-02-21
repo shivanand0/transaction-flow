@@ -143,6 +143,8 @@ public class TransactionFlowService implements ITransactionFlowService {
                 double rate = lenderI.getRateOfInterest() / (12 * 100);
                 Integer time = lenderI.getTenure();
                 Integer emi;
+                Integer lenderInfoId = lenderI.getId();
+
                 double totalInterest;
                 if (rate != 0) {
                     emi = (int) Math.ceil((principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1));
@@ -153,6 +155,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 }
 
                 EmiDetails emiDetails = EmiDetails.builder()
+                        .lenderInfoId(lenderInfoId)
                         .loanDuration(time)
                         .interestRate(lenderI.getRateOfInterest())
                         .monthlyInstallment(emi)
