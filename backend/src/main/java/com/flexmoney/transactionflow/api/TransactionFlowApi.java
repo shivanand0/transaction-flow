@@ -33,7 +33,7 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("/details")
-        public Details getDetails(@RequestBody UuidDTO uuidDTO){
-                return transactionFlowService.getDetails(uuidDTO.getUuid());
+        public Details getDetails(@RequestParam UUID uuid){
+                return transactionFlowService.getDetails(uuid);
         }
 }

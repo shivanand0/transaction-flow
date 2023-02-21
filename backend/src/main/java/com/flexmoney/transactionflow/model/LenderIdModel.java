@@ -20,4 +20,6 @@ public class LenderIdModel {
     private Integer lenderId;
 
     private String userMobileNumber;
+
+    private double creditLimit;
 }

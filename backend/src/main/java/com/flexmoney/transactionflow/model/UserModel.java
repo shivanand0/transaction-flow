@@ -21,7 +21,6 @@ public class UserModel {
     @NotBlank(message = "Please enter your mobile number")
     @Pattern(regexp="(^$|[0-9]{10})",message = "Please enter a valid mobile number")
     private String mobileNumber;
-    private double creditLimit;
     private Long lastFourDigitsOfPan;
     @OneToMany(cascade= CascadeType.ALL)
     @JoinColumn(name="userMobileNumber",referencedColumnName = "mobileNumber")

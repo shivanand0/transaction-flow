@@ -31,6 +31,8 @@ public class EssentialDetails {
     @NotNull(message = "Please send the userId")
     private Long userId;
 
+    private UUID trackId;
+
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
     @Pattern(regexp="(^$|[0-9]{10})",message = "Please enter a valid mobile number")
@@ -38,6 +40,10 @@ public class EssentialDetails {
 
     @NotNull(message = "Please send the amount")
     private double amount;
+
+    private String status;
+
+    private String remark;
 
     @CreationTimestamp
     private Date createdAt;
