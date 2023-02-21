@@ -6,10 +6,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 public interface ITransactionFlowService {
-    ResponseEntity<UserResponse> saveUser(UserDTO userDTO);
+    ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception;
     ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO);
     LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
-    Details getDetails(DetailsDTO detailsDTO);
+    Details getDetails(UUID detailsId);
 
     ResponseEntity<TwoFVerificationResponse> OtpVerifivation(String verificationType, TwoFVerificationDTO twoFVerificationDTO);
 

@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ILenderIdRepository extends JpaRepository<LenderIdModel,Integer> {
-    List<LenderIdModel> findAllByLenderId(int i);
 
-    List<LenderIdModel> findAllByUserFid(int i);
+    List<LenderIdModel> findAllByUserMobileNumber(String i);
 }

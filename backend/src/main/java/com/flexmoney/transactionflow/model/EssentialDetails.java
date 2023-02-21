@@ -1,6 +1,10 @@
 package com.flexmoney.transactionflow.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -8,20 +12,26 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Builder
-public class UserResponse {
+public class EssentialDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty("txnId")
     private UUID detailsId;
-    private UUID trackId;
-
     @NotNull(message = "Please send the userId")
     private Long userId;
+
+    private UUID trackId;
 
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
@@ -31,5 +41,14 @@ public class UserResponse {
     @NotNull(message = "Please send the amount")
     private double amount;
 
-    private Integer statusCode;
+    private String status;
+
+    private String remark;
+
+    @CreationTimestamp
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
+
 }

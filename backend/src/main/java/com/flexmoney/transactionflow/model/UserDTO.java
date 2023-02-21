@@ -19,8 +19,8 @@ public class UserDTO {
     @NotBlank(message = "Please enter your mobile number")
     @Pattern(regexp = "(^$|[0-9]{10})", message = "Please enter a valid mobile number")
     private String mobileNumber;
-    //    @JsonIgnore
+
     @NotNull(message = "Please enter the amount")
-    @DecimalMin(value = "500", message = "Amount must be greater than 500")
+    @DecimalMin(value = "500.00", message = "Amount must be greater than 500")
     private Double amount;
 }

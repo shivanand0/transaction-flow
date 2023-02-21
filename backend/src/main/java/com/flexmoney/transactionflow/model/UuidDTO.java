@@ -1,13 +1,15 @@
 package com.flexmoney.transactionflow.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetailsDTO {
-    private Long userId;
+public class UuidDTO {
+
+    private UUID uuid;
 }
