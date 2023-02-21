@@ -9,7 +9,7 @@ import { GetLenderDetails, TrackStage } from '../../../config/API/Api';
 import LinearProgress from '@mui/material/LinearProgress';
 
 const LenderSelection = () => {
-    const { trackId } = useParams();
+    const { detailsId } = useParams();
     const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser } = AppState();
 
     const [selectedLenderId, setSelectedLenderId] = useState(null)
@@ -17,19 +17,17 @@ const LenderSelection = () => {
     const fetchLenderDetails = async () => {
         try {
             setLoading(true)
-            // make change in /details api here: fetch details using trackId
-            const result = await GetLenderDetails(user.uid, trackId);
+            const result = await GetLenderDetails(detailsId);
             setLoading(false)
 
             setLenderdetails(result)
 
             setUser({
                 name: result.data.userName,
-                // uid: result.data.userId,
-                uid: user.uid, // mocking - later this line will be removed
+                uid: result.data.userId,
                 mobile: result.data.mobileNumber,
                 amount: result.data.amount,
-                trackId: trackId
+                detailsId: detailsId
             })
 
         } catch (error) {
@@ -44,8 +42,7 @@ const LenderSelection = () => {
 
     const handleLenderOnclick = async (lenderId, trackStage) => {
         try {
-            // make change in /details api here: fetch details using trackId
-            const result = await TrackStage(trackStage, lenderId, null, trackId)
+            const result = await TrackStage(trackStage, lenderId, null, detailsId)
 
         } catch (error) {
             setAlert({
@@ -59,7 +56,7 @@ const LenderSelection = () => {
 
     useEffect(() => {
         fetchLenderDetails();
-    }, [trackId])
+    }, [detailsId])
 
     useEffect(() => {
         handleLenderOnclick(selectedLenderId, "LENDER_SELECTION");

@@ -12,10 +12,10 @@ const AppContext = ({ children }) => {
 
   const [user, setUser] = useState({
     name: "",
-    uid: "7",
+    uid: "",
     mobile: "",
     amount: null,
-    trackId: ""
+    detailsId: ""
   });
 
   const [lenderDetails, setLenderdetails] = useState(null)

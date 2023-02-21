@@ -35,12 +35,13 @@ const MainCard = () => {
       setLoading(true)
       const result = await CreateUser(name, number, amount);
       setLoading(false)
+
       setUser({
         name: name,
         uid: result.data.userId,
         mobile: number,
         amount: amount,
-        trackId: result.data.trackId
+        detailsId: result.data.txnId
       })
 
       setAlert({
@@ -49,10 +50,10 @@ const MainCard = () => {
         type: "success",
       });
 
-      console.log(result.data.trackId)
-      return navigate(`/transaction/lender-selection/${result.data.trackId}`)
+      return navigate(`/transaction/lender-selection/${result.data.txnId}`)
 
     } catch (error) {
+      console.log(error)
       setAlert({
         open: true,
         message: error.message,
