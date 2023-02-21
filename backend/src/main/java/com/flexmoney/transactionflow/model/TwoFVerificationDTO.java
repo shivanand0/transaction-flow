@@ -12,9 +12,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TwoFVerificationDTO {
-    @NotNull(message = "Provide trackId")
-    @NotBlank(message = "Provide trackId")
-    private UUID trackId;
+    @NotNull(message = "Provide detailsId")
+    @NotBlank(message = "Provide detailsId")
+    private UUID detailsId;
 
     @NotNull(message = "Provide OTP")
     @NotBlank(message = "Provide OTP")

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -182,60 +181,52 @@ public class TransactionFlowService implements ITransactionFlowService {
 
 
     @Override
-    public ResponseEntity<TwoFVerificationResponse> OtpVerifivation(String verificationType, TwoFVerificationDTO twoFVerificationDTO) {
-//                UUID trackId = twoFVerificationDTO.getTrackId();
-//                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
-//                boolean status;
-//                long expectedMobileOtp = 1234;
-//                String msg;
-//                HttpStatus statusCode;
-//
-//                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-//                long userId = trackStageModel.getUserId();
-//                UserModel userModel = userRepository.findById(userId).get();
-//
-//                double txnAmnt = trackStageModel.getAmount();
-//                double creditLimit = userModel.getCreditLimit();
-//                int comp = Double.compare(txnAmnt, creditLimit);
-//                if(comp == -1){
-//                        msg = "Transaction Amount is greater than Credit Limit";
-//                        statusCode = HttpStatus.ACCEPTED;
-//                        status=false;
-//                }
-//                else if(verificationType.equals("PAN")){
-//                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
-//
-//                        if(receivedOtp == lastFourDigitsOfPan){
-//                                msg = "PAN Verification Successfull";
-//                                statusCode = HttpStatus.ACCEPTED;
-//                                status=true;
-//                        } else{
-//                                msg = "PAN Verification Failed";
-//                                statusCode = HttpStatus.EXPECTATION_FAILED;
-//                                status=false;
-//                        }
-//                } else if(verificationType.equals("MOBILE")){
-//                        if(receivedOtp == expectedMobileOtp){
-//                                msg = "Mobile Verification Successfull";
-//                                statusCode = HttpStatus.ACCEPTED;
-//                                status=true;
-//                        } else{
-//                                msg = "Mobile Verification Failed";
-//                                statusCode = HttpStatus.EXPECTATION_FAILED;
-//                                status=false;
-//                        }
-//                } else{
-//                        msg = "Bad Request";
-//                        statusCode = HttpStatus.BAD_REQUEST;
-//                        status=false;
-//                }
-//                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
-//                twoFVerificationResponse.setStatus(status);
-//                twoFVerificationResponse.setStatusCode(statusCode.value());
-//                twoFVerificationResponse.setMessage(msg);
-//
-//                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
-        return null;
+    public ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO) {
+                UUID detailsId = twoFVerificationDTO.getDetailsId();
+                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
+                boolean status;
+                long expectedMobileOtp = 1234;
+                String msg;
+                HttpStatus statusCode;
+
+                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetails.getUserId();
+                UserModel userModel = userRepository.findById(userId).get();
+
+                if(verificationType.equals("PAN")){
+                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+
+                        if(receivedOtp == lastFourDigitsOfPan){
+                                msg = "PAN Verification Successfull";
+                                statusCode = HttpStatus.ACCEPTED;
+                                status=true;
+                        } else{
+                                msg = "PAN Verification Failed";
+                                statusCode = HttpStatus.EXPECTATION_FAILED;
+                                status=false;
+                        }
+                } else if(verificationType.equals("MOBILE")){
+                        if(receivedOtp == expectedMobileOtp){
+                                msg = "Mobile Verification Successfull";
+                                statusCode = HttpStatus.ACCEPTED;
+                                status=true;
+                        } else{
+                                msg = "Mobile Verification Failed";
+                                statusCode = HttpStatus.EXPECTATION_FAILED;
+                                status=false;
+                        }
+                } else{
+                        msg = "Bad Request";
+                        statusCode = HttpStatus.BAD_REQUEST;
+                        status=false;
+                }
+                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
+                twoFVerificationResponse.setStatus(status);
+                twoFVerificationResponse.setStatusCode(statusCode.value());
+                twoFVerificationResponse.setMessage(msg);
+
+                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
+
     }
 
         @Override

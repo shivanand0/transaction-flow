@@ -39,8 +39,8 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("/twoFVerification/{verificationType}")
-        public ResponseEntity<TwoFVerificationResponse> OtpVerifivation(@PathVariable("verificationType") String verificationType , @RequestBody TwoFVerificationDTO twoFVerificationDTO){
-                return transactionFlowService.OtpVerifivation(verificationType, twoFVerificationDTO);
+        public ResponseEntity<TwoFVerificationResponse> OtpVerification(@PathVariable("verificationType") String verificationType , @RequestBody TwoFVerificationDTO twoFVerificationDTO){
+                return transactionFlowService.OtpVerification(verificationType, twoFVerificationDTO);
         }
 
         @PostMapping("/initTxn")
