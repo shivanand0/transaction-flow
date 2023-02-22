@@ -3,6 +3,7 @@ const APP_ENV = import.meta.env.VITE_ENV;
 const API_URL = APP_ENV == "DEV" ? import.meta.env.VITE_API_IP_TEST : import.meta.env.VITE_API_IP_PROD;
 
 export const CreateUser = async (name, number, amount) => {
+    
     const data = {
         userName: name,
         mobileNumber: number,
@@ -12,8 +13,9 @@ export const CreateUser = async (name, number, amount) => {
         `${API_URL}/users`,
         data
     ).catch((err) => {
-        if (err.statusCode === 400 || err.statusCode === 500) {
-            return err.errorMessage;
+        if (err.response.data.statusCode === 400 || err.response.data.statusCode === 500) {
+            // open setAlert here
+            return err.response;
         }
     })
     
@@ -25,8 +27,8 @@ export const GetLenderDetails = async (detailsId) => {
     const res = await Axios.post(
         `${API_URL}/details?uuid=${detailsId}`
     ).catch((err) => {
-        if (err.statusCode === 400 || err.statusCode === 500) {
-            return err.errorMessage;
+        if (err.response.data.statusCode === 400 || err.response.data.statusCode === 500) {
+            return err.response;
         }
     })
     // console.log(res)
