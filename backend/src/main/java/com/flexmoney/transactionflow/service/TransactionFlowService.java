@@ -1,5 +1,4 @@
 package com.flexmoney.transactionflow.service;
-
 import com.flexmoney.transactionflow.error.CreditLimitException;
 import com.flexmoney.transactionflow.model.*;
 import com.flexmoney.transactionflow.repository.*;
@@ -15,18 +14,21 @@ import java.util.UUID;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
-    @Autowired
-    private IUserRepository userRepository;
-    @Autowired
-    private ITrackStageRepository trackStageRepository;
+        @Autowired
+        private IUserRepository userRepository;
+        @Autowired
+        private ITrackStageRepository trackStageRepository;
 
-    @Autowired
-    private ILenderInfoRepository lenderInfoRepository;
+        @Autowired
+        private ILenderInfoRepository lenderInfoRepository;
 
-    @Autowired
-    private ILenderRepository lenderRepository;
-    @Autowired
-    private ILenderIdRepository lenderIdRepository;
+        @Autowired
+        private ILenderRepository lenderRepository;
+        @Autowired
+        private ILenderIdRepository lenderIdRepository;
+
+        @Autowired
+        private ITransactionRepository transactionRepository;
 
     @Autowired
     private IEssentialDetailsRepository essentialDetailsRepository;
@@ -82,11 +84,13 @@ public class TransactionFlowService implements ITransactionFlowService {
     }
 
     @Override
-    public ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO) {
+    public ResponseEntity<?> saveTrackStage(UUID detailsId, TrackStageDTO trackStageDTO) {
+        EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+        UUID trackId = essentialDetails.getTrackId();
         TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
         Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
-        Integer selectedTenureId = trackStageDTO.getSelectedTenureId();
-        trackStageRepository.updateRemainingFieldsById(selection, trackId, selectedLenderId, selectedTenureId);
+        Integer selectedLenderInfoId = trackStageDTO.getSelectedLenderInfoId();
+        trackStageRepository.updateRemainingFieldsById(selection, trackId, selectedLenderId, selectedLenderInfoId);
         return new ResponseEntity<>("Success", HttpStatus.CREATED);
     }
 
@@ -139,6 +143,8 @@ public class TransactionFlowService implements ITransactionFlowService {
                 double rate = lenderI.getRateOfInterest() / (12 * 100);
                 Integer time = lenderI.getTenure();
                 Integer emi;
+                Integer lenderInfoId = lenderI.getId();
+
                 double totalInterest;
                 if (rate != 0) {
                     emi = (int) Math.ceil((principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1));
@@ -149,6 +155,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 }
 
                 EmiDetails emiDetails = EmiDetails.builder()
+                        .lenderInfoId(lenderInfoId)
                         .loanDuration(time)
                         .interestRate(lenderI.getRateOfInterest())
                         .monthlyInstallment(emi)
@@ -174,5 +181,83 @@ public class TransactionFlowService implements ITransactionFlowService {
                 .lenderDetailsList(lenderDetailsList)
                 .build();
     }
+
+
+    @Override
+    public ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO) {
+                UUID detailsId = twoFVerificationDTO.getDetailsId();
+                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
+                boolean status;
+                long expectedMobileOtp = 1234;
+                String msg;
+                HttpStatus statusCode;
+
+                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetails.getUserId();
+                UserModel userModel = userRepository.findById(userId).get();
+
+                if(verificationType.equals("PAN")){
+                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+
+                        if(receivedOtp == lastFourDigitsOfPan){
+                                msg = "PAN Verification Successfull";
+                                statusCode = HttpStatus.ACCEPTED;
+                                status=true;
+                        } else{
+                                msg = "PAN Verification Failed";
+                                statusCode = HttpStatus.EXPECTATION_FAILED;
+                                status=false;
+                        }
+                } else if(verificationType.equals("MOBILE")){
+                        if(receivedOtp == expectedMobileOtp){
+                                msg = "Mobile Verification Successfull";
+                                statusCode = HttpStatus.ACCEPTED;
+                                status=true;
+                        } else{
+                                msg = "Mobile Verification Failed";
+                                statusCode = HttpStatus.EXPECTATION_FAILED;
+                                status=false;
+                        }
+                } else{
+                        msg = "Bad Request";
+                        statusCode = HttpStatus.BAD_REQUEST;
+                        status=false;
+                }
+                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
+                twoFVerificationResponse.setStatus(status);
+                twoFVerificationResponse.setStatusCode(statusCode.value());
+                twoFVerificationResponse.setMessage(msg);
+
+                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
+
+    }
+
+        @Override
+        public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
+                UUID detailsId = transactionDTO.getDetailsId();
+                String status = transactionDTO.getStatus();
+
+                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetails.getUserId();
+                UUID trackId = essentialDetails.getTrackId();
+
+                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+
+                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+
+                TransactionModel transaction = new TransactionModel();
+                transaction.setDetailsId(detailsId);
+                transaction.setUserId(userId);
+                transaction.setLenderInfoId(lenderInfoId);
+                transaction.setStatus(status);
+                transactionRepository.save(transaction);
+
+                TransactionResponse transactionResponse = new TransactionResponse();
+                transactionResponse.setStatus(true);
+                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
+                transactionResponse.setMessage("Successful");
+
+                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+        }
 
 }

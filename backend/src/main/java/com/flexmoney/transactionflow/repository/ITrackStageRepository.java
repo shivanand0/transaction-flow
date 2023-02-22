@@ -14,7 +14,8 @@ import java.util.UUID;
 @Transactional
 public interface ITrackStageRepository extends JpaRepository<TrackStageModel,Integer> {
     @Modifying
-    @Query(value = "UPDATE TrackStageModel t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedTenureId = :selectedTenureId WHERE t.trackId = :id")
-    void updateRemainingFieldsById(@Param("selection") TrackStageModel.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedTenureId") Integer selectedTenureId);
+    @Query(value = "UPDATE TrackStageModel t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedLenderInfoId = :selectedLenderInfoId WHERE t.trackId = :id")
+    void updateRemainingFieldsById(@Param("selection") TrackStageModel.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedLenderInfoId") Integer selectedLenderInfoId);
 
+    TrackStageModel findByTrackId(UUID trackId);
 }

@@ -12,8 +12,8 @@ function App() {
     <>
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route exact path="/transaction/lender-selection/:trackId" element={<LenderSelection />} />
-        <Route exact path="/transaction/confirm" element={<TwoFAuthentication/>} />
+        <Route exact path="/transaction/lender-selection/:detailsId" element={<LenderSelection />} />
+        <Route exact path="/transaction/confirm" element={<TwoFAuthentication />} />
         <Route path="*" element={<Error_404 />} />
       </Routes>
       <Alert />

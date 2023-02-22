@@ -20,9 +20,9 @@ public class TransactionFlowApi {
             return transactionFlowService.saveUser(userDTO);
         }
 
-        @PostMapping("trackStage/{trackId}")
-        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("trackId") UUID trackId, @Valid @RequestBody TrackStageDTO trackStageDTO){
-                return transactionFlowService.saveTrackStage(trackId,trackStageDTO);
+        @PostMapping("trackStage/{detailsId}")
+        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("detailsId") UUID detailsId, @Valid @RequestBody TrackStageDTO trackStageDTO){
+                return transactionFlowService.saveTrackStage(detailsId,trackStageDTO);
         }
         @PostMapping("/addLender")
         public ResponseEntity<?> addLender(@RequestBody LenderInfoDTO lenderInfoDTO){
@@ -36,5 +36,16 @@ public class TransactionFlowApi {
         @PostMapping("/details")
         public Details getDetails(@RequestParam UUID uuid){
                 return transactionFlowService.getDetails(uuid);
+        }
+
+
+        @PostMapping("/twoFVerification/{verificationType}")
+        public ResponseEntity<TwoFVerificationResponse> OtpVerification(@PathVariable("verificationType") String verificationType , @RequestBody TwoFVerificationDTO twoFVerificationDTO){
+                return transactionFlowService.OtpVerification(verificationType, twoFVerificationDTO);
+        }
+
+        @PostMapping("/initTxn")
+        public ResponseEntity<TransactionResponse> initTransaction(@RequestBody TransactionDTO transactionDTO){
+                return transactionFlowService.InitTransaction(transactionDTO);
         }
 }

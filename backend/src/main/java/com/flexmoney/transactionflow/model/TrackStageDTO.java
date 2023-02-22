@@ -14,5 +14,5 @@ public class TrackStageDTO {
     @Enumerated(EnumType.STRING)
     private TrackStageModel.selectionStage selection;
     private Integer selectedLenderId;
-    private Integer selectedTenureId;
+    private Integer selectedLenderInfoId;
 }
