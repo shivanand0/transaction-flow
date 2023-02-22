@@ -1,10 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import { useParams } from 'react-router-dom'
 import Navbar from "../../components/Navbar/Navbar";
 import { CustomBox } from "../../components/Lender/Styles";
 import { LinearProgress, TextField } from "@mui/material";
 import { Button, Card, CardContent } from '@mui/material';
+import LenderInfo from '../../components/Lender/LenderInfo';
+import reactSVG from '../../assets/react.svg';
+import { AppState } from '../../context/AppContext';
+import { GetLenderDetails, TrackStage } from '../../config/API/Api';
 
 const TwoFAuthentication = () => {
+    const { detailsId } = useParams();
+    const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser } = AppState();
+
+    const [selectedLenderId, setSelectedLenderId] = useState(null)
+
+    const fetchLenderDetails = async () => {
+        try {
+            setLoading(true)
+            const result = await GetLenderDetails(detailsId);
+            setLoading(false)
+
+            setLenderdetails(result)
+
+            setUser({
+                name: result.data.userName,
+                uid: result.data.userId,
+                mobile: result.data.mobileNumber,
+                amount: result.data.amount,
+                detailsId: detailsId
+            })
+
+        } catch (error) {
+            setAlert({
+                open: true,
+                message: error.message,
+                type: "error",
+            });
+            return;
+        }
+    }
+
+    const handleLenderOnclick = async (lenderId, trackStage) => {
+        try {
+            const result = await TrackStage(trackStage, lenderId, null, detailsId)
+
+        } catch (error) {
+            setAlert({
+                open: true,
+                message: error.message,
+                type: "error",
+            });
+            return;
+        }
+    }
+
+    useEffect(() => {
+        fetchLenderDetails();
+    }, [detailsId])
+
+    useEffect(() => {
+        handleLenderOnclick(selectedLenderId, "TWO_FACTOR_AUTHENTICATION");
+    }, [selectedLenderId])
+
+    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
+
     const [showCard2, setShowCard2] = useState(false);
     const [panNumber,setPanNumber] = useState('');
     const [otpNumber,setOtpNumber] = useState('');
@@ -17,40 +77,6 @@ const TwoFAuthentication = () => {
         setShowCard2(true);
     }
     const handlePanNumberChange =  (event) =>{
-        const { trackId } = useParams();
-        const { user, setLenderdetails } = AppState();
-    
-        const fetchLenderDetails = async() => {
-            const data = {
-                trackId: trackId,
-                uid: user.uid
-            }
-            try {
-                const result = await GetLenderDetails(data);
-                setAlert({
-                  open: true,
-                  //message: `Successful. Welcome ${result.user.name}`,
-                  message: `Successful. Welcome`,
-                  type: "success",
-                });
-          
-                // setLenderdetails({
-                //   name: result.data.name,
-                //   
-                // })
-              } catch (error) {
-                setAlert({
-                  open: true,
-                  message: error.message,
-                  type: "error",
-                });
-                return;
-              }
-        }
-        useEffect(() => {
-        //   fetchLenderDetails();
-        }, [trackId])
-        
         const newValue = event.target.value;
         if (newValue.length===4) {
             setPanNumber(newValue);
@@ -93,7 +119,7 @@ const TwoFAuthentication = () => {
     return (
         <>
             <Navbar isHome={false} />
-            {<LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
+            {loading &&<LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
             <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
                 <h2>Transaction Confirmation</h2>
 
