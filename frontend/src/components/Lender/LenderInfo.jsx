@@ -4,10 +4,10 @@ import Grid from '@mui/material/Grid';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-const LenderInfo = ({ img, bankName, emiStarting }) => {
+const LenderInfo = ({ img, bankName, emiStarting, onClick }) => {
     return (
         <>
-            <CustomBox>
+            <CustomBox onClick={onClick}>
                 <Grid
                     container
                     spacing={2}

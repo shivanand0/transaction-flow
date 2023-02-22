@@ -175,6 +175,7 @@ public class TransactionFlowService implements ITransactionFlowService {
             lenderDetailsList.add(lenderDetails);
         }
         return Details.builder()
+                .statusCode(HttpStatus.OK.value())
                 .userName(userRepository.findById(userId).get().getUserName())
                 .mobileNumber(mobileNumber)
                 .amount(amount)
