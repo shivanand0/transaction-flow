@@ -11,9 +11,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 const LenderSelection = () => {
     const navigate = useNavigate();
     const { detailsId } = useParams();
-    const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser } = AppState();
-
-    const [selectedLenderId, setSelectedLenderId] = useState()
+    const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues } = AppState();
 
     const fetchLenderDetails = async () => {
         try {
@@ -49,9 +47,9 @@ const LenderSelection = () => {
         }
     }
 
-    const handleLenderOnclick = async (lenderId, trackStage) => {
+    const handleLenderOnclick = async () => {
         try {
-            const result = await TrackStage(trackStage, lenderId, null, detailsId)
+            const result = await TrackStage(trackStageValues.selection, trackStageValues.selectedLenderId, trackStageValues.selectedLenderInfoId, detailsId)
 
         } catch (error) {
             setAlert({
@@ -68,14 +66,17 @@ const LenderSelection = () => {
     }, [detailsId])
 
     useEffect(() => {
-        handleLenderOnclick(selectedLenderId, "LENDER_SELECTION");
-    }, [selectedLenderId])
+        handleLenderOnclick();
+    }, [trackStageValues])
 
     const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
 
     const handleSelectLenderId = (lenderId) => {
-        console.log("X" + lenderId)
-        setSelectedLenderId(lenderId);
+        setTrackStageValues({
+            selection: "LENDER_SELECTION",
+            selectedLenderId: lenderId,
+            selectedLenderInfoId: null
+        })
     }
 
     return (
@@ -91,7 +92,6 @@ const LenderSelection = () => {
                 lenderDetailsList?.map((lender) => {
                     const data = lender.emiDetailsList[0]
                     let str = `${data.monthlyInstallment} x ${data.loanDuration} ${data.tenureType}`
-                    console.log(lender.lenderId)
                     return (
                         <LenderInfo
                             img={reactSVG}
