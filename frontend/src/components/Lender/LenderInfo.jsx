@@ -4,10 +4,10 @@ import Grid from '@mui/material/Grid';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-const LenderInfo = ({ img, bankName, emiStarting, onClick }) => {
+const LenderInfo = ({ img, bankName, emiStarting, onClickLender,onClickArrow }) => {
     return (
         <>
-            <CustomBox onClick={onClick}>
+            <CustomBox onClick={onClickLender}>
                 <Grid
                     container
                     spacing={2}
@@ -25,7 +25,7 @@ const LenderInfo = ({ img, bankName, emiStarting, onClick }) => {
                         <small>EMI starting <b>@<CurrencyRupeeIcon sx={{ fontSize: "12px" }} />{emiStarting}</b></small>
                     </Grid>
                     <Grid item xs={2}>
-                        <ArrowForwardIosIcon sx={{ color: "#4DBE0E" }} />
+                        <ArrowForwardIosIcon sx={{ color: "#4DBE0E" }} onClick={onClickArrow} />
                     </Grid>
                 </Grid>
             </CustomBox>

@@ -7,7 +7,8 @@ import {AppState} from "../../context/AppContext.jsx";
 
 const TenureSelection= () => {
 
-    const { lenderDetails } = AppState();
+    const { lenderDetails,trackStageValues } = AppState();
+    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId].emiDetailsList : null
 
     return (
         <>
@@ -17,18 +18,19 @@ const TenureSelection= () => {
                 {/*<small>Choose the EMI tenure that is best for you</small>*/}
             </CustomBox>
             {
-                lenderDetails[0]?.map((emiDetailsList) => {
+                lenderDetailsList?.map((emiDetails) => {
                     return (
                         <TenureInfo
-                        loanDuration={emiDetailsList.loanDuration}
-                        interestRate={emiDetailsList.interestRate}
-                        monthlyInstallment={emiDetailsList.monthlyInstallment}
-                        loanAmount={emiDetailsList.loanAmount}
-                        totalInterest={emiDetailsList.totalInterest}
+                        loanDuration={emiDetails.loanDuration}
+                        interestRate={emiDetails.interestRate}
+                        monthlyInstallment={emiDetails.monthlyInstallment}
+                        loanAmount={emiDetails.loanAmount}
+                        totalInterest={emiDetails.totalInterest}
                         />
                     )
                 })
             }
+
 
         </>
     );

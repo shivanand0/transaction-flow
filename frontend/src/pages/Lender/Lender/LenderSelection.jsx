@@ -50,7 +50,6 @@ const LenderSelection = () => {
     const handleLenderOnclick = async () => {
         try {
             const result = await TrackStage(trackStageValues.selection, trackStageValues.selectedLenderId, trackStageValues.selectedLenderInfoId, detailsId)
-
         } catch (error) {
             setAlert({
                 open: true,
@@ -59,6 +58,12 @@ const LenderSelection = () => {
             });
             return;
         }
+    }
+
+    const handleArrowOnClick = (lenderId) => {
+        handleSelectLenderId(lenderId)
+        handleLenderOnclick()
+        return navigate(`/transaction/tenure-selection/${detailsId}`)
     }
 
     useEffect(() => {
@@ -98,8 +103,10 @@ const LenderSelection = () => {
                             bankName={lender.lenderName}
                             emiStarting={str}
                             key={lender.lenderId}
-                            onClick={() => handleSelectLenderId(lender.lenderId)}
+                            onClickLender={() => handleSelectLenderId(lender.lenderId)}
+                            onClickArrow={() => handleArrowOnClick(lender.lenderId)}
                         />
+
                     )
                 })
             }
