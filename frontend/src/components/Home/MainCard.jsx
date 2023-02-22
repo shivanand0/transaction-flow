@@ -36,24 +36,30 @@ const MainCard = () => {
       const result = await CreateUser(name, number, amount);
       setLoading(false)
 
-      setUser({
-        name: name,
-        uid: result.data.userId,
-        mobile: number,
-        amount: amount,
-        detailsId: result.data.txnId
-      })
+      if (result.data.statusCode === 200) {
+        setUser({
+          name: name,
+          uid: result.data.userId,
+          mobile: number,
+          amount: amount,
+          detailsId: result.data.txnId
+        })
 
-      setAlert({
-        open: true,
-        message: `Successful. Welcome ${name}...Redirecting`,
-        type: "success",
-      });
+        setAlert({
+          open: true,
+          message: `Successful. Welcome ${name}...Redirecting`,
+          type: "success",
+        });
 
-      return navigate(`/transaction/lender-selection/${result.data.txnId}`)
-
+        return navigate(`/transaction/lender-selection/${result.data.txnId}`)
+      } else {
+        setAlert({
+          open: true,
+          message: result.data.errorMessage,
+          type: "error",
+        });
+      }
     } catch (error) {
-      console.log(error)
       setAlert({
         open: true,
         message: error.message,

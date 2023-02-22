@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from '../../../components/Navbar/Navbar';
 import LenderInfo from '../../../components/Lender/LenderInfo';
 import reactSVG from '../../../assets/react.svg';
@@ -9,10 +9,11 @@ import { GetLenderDetails, TrackStage } from '../../../config/API/Api';
 import LinearProgress from '@mui/material/LinearProgress';
 
 const LenderSelection = () => {
+    const navigate = useNavigate();
     const { detailsId } = useParams();
     const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser } = AppState();
 
-    const [selectedLenderId, setSelectedLenderId] = useState(null)
+    const [selectedLenderId, setSelectedLenderId] = useState()
 
     const fetchLenderDetails = async () => {
         try {
@@ -20,16 +21,24 @@ const LenderSelection = () => {
             const result = await GetLenderDetails(detailsId);
             setLoading(false)
 
-            setLenderdetails(result)
+            if (result.data.statusCode === 200) {
+                setLenderdetails(result)
 
-            setUser({
-                name: result.data.userName,
-                uid: result.data.userId,
-                mobile: result.data.mobileNumber,
-                amount: result.data.amount,
-                detailsId: detailsId
-            })
-
+                setUser({
+                    name: result.data.userName,
+                    uid: result.data.userId,
+                    mobile: result.data.mobileNumber,
+                    amount: result.data.amount,
+                    detailsId: detailsId
+                })
+            } else {
+                setAlert({
+                    open: true,
+                    message: result.data.errorMessage,
+                    type: "error",
+                });
+                return navigate("/")
+            }
         } catch (error) {
             setAlert({
                 open: true,
@@ -64,6 +73,11 @@ const LenderSelection = () => {
 
     const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
 
+    const handleSelectLenderId = (lenderId) => {
+        console.log("X" + lenderId)
+        setSelectedLenderId(lenderId);
+    }
+
     return (
         <>
             <Navbar isHome={false} />
@@ -77,18 +91,19 @@ const LenderSelection = () => {
                 lenderDetailsList?.map((lender) => {
                     const data = lender.emiDetailsList[0]
                     let str = `${data.monthlyInstallment} x ${data.loanDuration} ${data.tenureType}`
+                    console.log(lender.lenderId)
                     return (
                         <LenderInfo
                             img={reactSVG}
                             bankName={lender.lenderName}
                             emiStarting={str}
                             key={lender.lenderId}
-                            onClick={() => setSelectedLenderId(lender.lenderId) }
+                            onClick={() => handleSelectLenderId(lender.lenderId)}
                         />
                     )
                 })
             }
-            {/* <LenderInfo img={reactSVG} bankName="ICICI Bank" emiStarting="2,300 x 3 Months" /> */}
+
         </>
     )
 }
