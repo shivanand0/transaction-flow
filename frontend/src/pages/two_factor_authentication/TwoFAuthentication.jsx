@@ -3,8 +3,6 @@ import { useParams } from 'react-router-dom'
 import { CustomBox } from "../../components/Lender/Styles";
 import { LinearProgress, TextField } from "@mui/material";
 import { Button, Card, CardContent } from '@mui/material';
-import LenderInfo from '../../components/Lender/LenderInfo';
-import reactSVG from '../../assets/react.svg';
 import { AppState } from '../../context/AppContext';
 import { GetLenderDetails, InitTxn, TrackStage, VerifyNumber } from '../../config/API/Api';
 import ConfirmationNavbar from '../../components/Navbar/ConfirmationNavbar';
@@ -13,41 +11,42 @@ import { useNavigate, redirect } from 'react-router-dom';
 const TwoFAuthentication = () => {
     const navigate = useNavigate();
     const { detailsId } = useParams();
-    const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser } = AppState();
-
-    const [selectedLenderId, setSelectedLenderId] = useState(null)
+    const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues } = AppState();
 
     const fetchLenderDetails = async () => {
         try {
             setLoading(true)
             const result = await GetLenderDetails(detailsId);
             setLoading(false)
-
-            setLenderdetails(result)
-
-            setUser({
-                name: result.data.userName,
-                uid: result.data.userId,
-                mobile: result.data.mobileNumber,
-                amount: result.data.amount,
-                detailsId: detailsId
-            })
-
-
-        } catch (error) {
-            setAlert({
-                open: true,
-                message: error.message,
-                type: "error",
-            });
-            return;
-        }
-    }
-
-    const handleLenderOnclick = async (lenderId, trackStage) => {
-        try {
-            const result = await TrackStage(trackStage, lenderId, null, detailsId)
-
+            console.log(result)
+            if (result.data.statusCode === 200) {
+                setUser({
+                    name: result.data.userName,
+                    uid: result.data.userId,
+                    mobile: result.data.mobileNumber,
+                    amount: result.data.amount,
+                    detailsId: detailsId
+                })
+                setLenderdetails({
+                    //change 0 to trackStageValue.selectedLenderId after complete flow
+                    lenderName:result.data.lenderDetailsList[0].lenderName,
+                    //change 0 to trackStageValue.selectedTenureId after complete flow
+                    tenure:result.data.lenderDetailsList[0].emiDetailsList[0].loanDuration,
+                    tenureType:result.data.lenderDetailsList[0].emiDetailsList[0].tenureType,
+                    lenderType:result.data.lenderDetailsList[0].lenderType,
+                    monthlyInstallment:result.data.lenderDetailsList[0].emiDetailsList[0].monthlyInstallment,
+                    interest:result.data.lenderDetailsList[0].emiDetailsList[0].totalInterest,
+                    loanAmount:result.data.lenderDetailsList[0].emiDetailsList[0].loanAmount,
+                    totalAmount:result.data.lenderDetailsList[0].emiDetailsList[0].totalInterest + result.data.amount
+                })
+            } else {
+                setAlert({
+                    open: true,
+                    message: result.data.errorMessage,
+                    type: "error",
+                });
+                return navigate("/")
+            }
         } catch (error) {
             setAlert({
                 open: true,
@@ -62,13 +61,7 @@ const TwoFAuthentication = () => {
         fetchLenderDetails();
     }, [detailsId])
 
-    useEffect(() => {
-        handleLenderOnclick(selectedLenderId, "TWO_FACTOR_AUTHENTICATION");
-    }, [selectedLenderId])
-
-    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
-    console.log(lenderDetails)
-
+    
     const [showCard2, setShowCard2] = useState(false);
     const [panNumber,setPanNumber] = useState(null);
     const [otpNumber,setOtpNumber] = useState(null);
@@ -76,6 +69,7 @@ const TwoFAuthentication = () => {
     const [otpError, setOtpError] = useState(false);
     const [isValidInput, setValidInput] =useState(false);
     const [formSubmitted, setFormSubmitted] =useState(false);
+    const [otpFormSubmitted, setOtpFormSubmitted] =useState(false);
     const [isValidOtpInput, setValidOtpInput] =useState(false);
     const handleShowCard2 = () => {
         setShowCard2(true);
@@ -161,6 +155,7 @@ const TwoFAuthentication = () => {
           setLoading(false)
     
           if (result.data.statusCode === 202) {
+                setOtpFormSubmitted(true);
                 e.preventDefault();
                 try {
                   setLoading(true)
@@ -210,8 +205,9 @@ const TwoFAuthentication = () => {
     return (
         <>
             <ConfirmationNavbar isHome={false} />
+            {/* <ConfirmationNavbar isHome={false}/> */}
             {loading &&<LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
-            <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
+            <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" ,marginTop:"20px"}}>
                 <h2>Transaction Confirmation</h2>
                 
             </CustomBox>
@@ -238,13 +234,13 @@ const TwoFAuthentication = () => {
                         <CardContent align="center">
                             <h2>OTP Verification</h2>
                             <br />
-                            <p>OTP sent on mobile number</p>
+                            <p>OTP sent on {user.mobile}</p>
                             <br />
                             <TextField type="number" value={otpNumber} onChange={handleOtpNumberChange} minLength="4" maxLength="4" ></TextField>
                             {otpError && <div style={{ color: 'red' }}>Please enter 4 digits</div>}
                             <br />
                             <br />
-                            <Button onClick={handleOtpSubmit} variant="contained" color="primary"  disabled={!isValidOtpInput}>Submit</Button>
+                            <Button onClick={handleOtpSubmit} variant="contained" color="primary"  disabled={!isValidOtpInput || otpFormSubmitted}>Submit</Button>
                         </CardContent>
                     </Card>
                 }

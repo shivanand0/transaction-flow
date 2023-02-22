@@ -15,8 +15,8 @@ import { useNavigate } from 'react-router-dom';
 const ConfirmationNavbar = ({ isHome }) => {
     const navigate = useNavigate();
     const goBack = () => navigate("/");
-    const { user,lenderDetails } = AppState();
-
+    const { user, lenderDetails } = AppState();
+    
     return (
         <>
             <CustomBox
@@ -26,29 +26,42 @@ const ConfirmationNavbar = ({ isHome }) => {
             </CustomBox>
             <CustomAppbar>
 
-                <Container maxWidth="xl">
+                <Container maxWidth="100px" style={{padding:"20px"}}>
                     <Toolbar disableGutters>
-                        <PhoneAndroidIcon sx={{ mr: 1 }} />
-                        <Typography
+                        
+                        <Box
                             noWrap
                             sx={{
                                 // mr: 2,
                                 //   display: { xs: 'none', md: 'flex' },
-                                fontFamily: 'monospace',
+                              
                                 color: 'inherit',
                                 textDecoration: 'none',
                                 flex: 1
                             }}
-                        >
-                            {
-                                !isHome && user.mobile
-                            }
-                        </Typography>
+                            
+                        ><PhoneAndroidIcon sx={{ mr: 1,padding:"4px" }} />
+                            <strong>{!isHome && user.mobile}</strong>
+                            <br />
+                            <br />
+                            LENDER: <strong>{!isHome && lenderDetails && lenderDetails.lenderName}</strong>
+                            <br />
+                            <br />
+                            <p>{!isHome && lenderDetails && lenderDetails.lenderType}<span> : </span><CurrencyRupeeIcon sx={{ fontSize: "13px" }} /> 
+                            <strong>{!isHome && lenderDetails && lenderDetails.monthlyInstallment}</strong>/month</p>
+                            <br />
+                            <strong>TOTAL PAYABLE AMOUNT : </strong><CurrencyRupeeIcon sx={{ fontSize: "13px" }} /> <strong>{!isHome && lenderDetails && lenderDetails.totalAmount}</strong>
+                        </Box>
 
                         <Box>
-                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{!isHome && user.amount}</strong>
-                            <strong>{isHome && lenderDetails.lenderId}</strong>
-                            
+                            AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /> <strong>{!isHome && user.amount}</strong>
+                            <br />
+                            <br />
+                            TENURE : <strong>{!isHome && lenderDetails && lenderDetails.tenure}</strong><span> </span>
+                            <strong>{!isHome && lenderDetails && lenderDetails.tenureType}</strong>
+                            <br />
+                            <br />
+                            INTEREST : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{!isHome && lenderDetails && lenderDetails.interest}</strong>
                         </Box>
                         
                     </Toolbar>
@@ -58,6 +71,7 @@ const ConfirmationNavbar = ({ isHome }) => {
                 !isHome && (
                     <CustomBox
                         sx={{
+                            marginTop: "70px",
                             display: "flex",
                             justifyContent: "flex-start",
                             padding: "0 0 10px 10px",
