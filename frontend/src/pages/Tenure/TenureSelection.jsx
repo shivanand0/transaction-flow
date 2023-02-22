@@ -8,7 +8,7 @@ import {AppState} from "../../context/AppContext.jsx";
 const TenureSelection= () => {
 
     const { lenderDetails,trackStageValues } = AppState();
-    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId].emiDetailsList : null
+    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId-1].emiDetailsList : null
 
     return (
         <>
