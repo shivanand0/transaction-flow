@@ -15,17 +15,33 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrackStageModel {
+public class TransactionModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID trackId;
-    public enum selectionStage{LENDER_SELECTION,TENURE_SELECTION,TWO_FACTOR_AUTHENTICATION,TRANSACTION_COMPLETE}
-    @Enumerated(EnumType.STRING)
-    private selectionStage selection;
-    private Integer selectedLenderId;
-    private Integer selectedLenderInfoId;
+    private UUID txnId;
+
+    @NotNull(message = "detailsId required")
+    private UUID detailsId;
+
+    @NotNull(message = "userId required")
+    private Long userId;
+
+    @NotNull(message = "lenderInfoId required")
+    private Integer lenderInfoId;
+
+    /*
+    // lenderInfoId will give lenderId, tenureId, rateOfInterest
+    private long lenderId;
+    private long tenureId;
+    private double rateOfInterest;
+    // trackId can fetch amount
+    private double amount;
+     */
+    private String status;
+
     @CreationTimestamp
     private Date createdAt;
+
     @UpdateTimestamp
     private Date updatedAt;
 }

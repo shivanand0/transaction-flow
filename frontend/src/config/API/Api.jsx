@@ -2,32 +2,50 @@ import Axios from "axios";
 const APP_ENV = import.meta.env.VITE_ENV;
 const API_URL = APP_ENV == "DEV" ? import.meta.env.VITE_API_IP_TEST : import.meta.env.VITE_API_IP_PROD;
 
-// const res = await Axios.get('https://jsonplaceholder.typicode.com/users', {
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     }
-    // });
-    // console.log(res)
-export const CreateUser = async(data) => {
+export const CreateUser = async (name, number, amount) => {
+    const data = {
+        userName: name,
+        mobileNumber: number,
+        amount: amount
+    }
     const res = await Axios.post(
-        `${API_URL}api/users`,
+        `${API_URL}/users`,
         data
     ).catch((err) => {
-        if(err.response.status !== 200){
-            return err.response;
+        if (err.statusCode === 400 || err.statusCode === 500) {
+            return err.errorMessage;
+        }
+    })
+    
+    return res;
+}
+
+export const GetLenderDetails = async (detailsId) => {
+
+    const res = await Axios.post(
+        `${API_URL}/details?uuid=${detailsId}`
+    ).catch((err) => {
+        if (err.statusCode === 400 || err.statusCode === 500) {
+            return err.errorMessage;
         }
     })
     // console.log(res)
     return res;
 }
 
-export const GetLenderDetails = async(data) => {
+export const TrackStage = async (selection, selectedLenderId, selectedLenderInfoId, detailsId) => {
+    const data = {
+        selection: selection,
+        selectedLenderId: selectedLenderId,
+        selectedLenderInfoId: selectedLenderInfoId
+    }
+
     const res = await Axios.post(
-        `${API_URL}api/details`,
+        `${API_URL}/trackStage/${detailsId}`,
         data
     ).catch((err) => {
-        if(err.response.status !== 200){
-            return err.response;
+        if (err.statusCode === 400 || err.statusCode === 500) {
+            return err.errorMessage;
         }
     })
     // console.log(res)

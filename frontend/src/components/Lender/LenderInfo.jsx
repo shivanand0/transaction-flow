@@ -13,7 +13,8 @@ const LenderInfo = ({ img, bankName, emiStarting }) => {
                     spacing={2}
                     sx={{
                         gap: "10px",
-                        padding: "10px"
+                        padding: "10px",
+                        cursor: "pointer"
                     }}
                 >
                     <Grid item xs={2}>

@@ -11,4 +11,8 @@ public interface ITransactionFlowService {
     LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
     Details getDetails(UUID detailsId);
 
+    ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO);
+
+
+    ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO);
 }

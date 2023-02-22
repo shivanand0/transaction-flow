@@ -15,14 +15,15 @@ const AppContext = ({ children }) => {
     uid: "",
     mobile: "",
     amount: null,
+    detailsId: ""
   });
 
-  const [lenderdetails, setLenderdetails] = useState({
-    name: ""
-  })
+  const [lenderDetails, setLenderdetails] = useState(null)
+
+  const [loading, setLoading] = useState(false)
 
   return (
-      <App.Provider value={{alert, setAlert, user, setUser, lenderdetails, setLenderdetails}} >
+      <App.Provider value={{alert, setAlert, user, setUser, lenderDetails, setLenderdetails, loading, setLoading}} >
           { children }
       </App.Provider>
   );
