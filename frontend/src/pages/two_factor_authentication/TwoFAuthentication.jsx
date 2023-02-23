@@ -130,10 +130,10 @@ const TwoFAuthentication = () => {
         } catch (error) {
           setAlert({
             open: true,
-            message: error.message,
+            message: `FAIL`,
             type: "error",
           });
-          return;
+          return navigate("/");
         }
       }
 
@@ -165,7 +165,7 @@ const TwoFAuthentication = () => {
                   if (result.data.statusCode === 201) {
                     setAlert({
                         open: true,
-                        message: `Successful.`,
+                        message: `SUCCESS`,
                         type: "success",
                       });
           
@@ -194,12 +194,35 @@ const TwoFAuthentication = () => {
             });
           }
         } catch (error) {
-          setAlert({
-            open: true,
-            message: error.message,
-            type: "error",
-          });
-          return;
+            try {
+                setLoading(true)
+                const result = await InitTxn("FAIL",detailsId);
+                setLoading(false)
+          
+                if (result.data.statusCode === 201) {
+                  setAlert({
+                      open: true,
+                      message: `FAIL`,
+                      type: "error",
+                    });
+        
+                    return navigate(`/`)
+                    
+              } else {
+                  setAlert({
+                    open: true,
+                    message: result.data.errorMessage,
+                    type: "error",
+                  });
+                }
+              } catch (error) {
+                setAlert({
+                  open: true,
+                  message: error.message,
+                  type: "error",
+                });
+                return;
+              }
         }
       }
     return (
