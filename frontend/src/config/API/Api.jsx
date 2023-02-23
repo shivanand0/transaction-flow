@@ -64,12 +64,9 @@ export const VerifyNumber = async (number,detailsId,verificationType) => {
         `${API_URL}/twoFVerification/${verificationType}`,
         data
     ).catch((err) => {
-        if (err.response.data.statusCode === 400 || err.response.data.statusCode === 500) {
-            // open setAlert here
-            return err.response;
-        }
+        return err.response;
     })
-    
+    console.log(res)
     return res;
 }
 

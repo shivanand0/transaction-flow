@@ -83,7 +83,7 @@ const LenderSelection = () => {
             selectedLenderInfoId: null
         })
     }
-
+    
     return (
         <>
             <Navbar isHome={false} goBackUri={`/`} />

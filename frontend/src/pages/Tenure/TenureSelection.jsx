@@ -17,8 +17,8 @@ const TenureSelection = () => {
 
     const [selectedOption, setSelectedOption] = useState(null);
 
-    const { lenderDetails, trackStageValues, setAlert, loading, setLoading } = AppState();
-    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1].emiDetailsList : null
+    const { lenderDetails, trackStageValues, setTrackStageValues, setAlert, loading, setLoading } = AppState();
+    const lenderDetailsList = lenderDetails && lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1].emiDetailsList
 
     const handleSubmit = async () => {
         if (selectedOption === null) {
@@ -45,6 +45,15 @@ const TenureSelection = () => {
             return;
         }
     }
+
+    const handleSelectedTenureChange = (lenderInfoId) => {
+        setSelectedOption(lenderInfoId)
+        setTrackStageValues({
+            selection: "TENURE_SELECTION",
+            selectedLenderId: trackStageValues.selectedLenderId,
+            selectedLenderInfoId: lenderInfoId
+        })
+    }
     useEffect(() => {
         if (lenderDetails === null || lenderDetailsList === null) {
             return navigate(`/transaction/lender-selection/${detailsId}`)
@@ -59,7 +68,7 @@ const TenureSelection = () => {
                 {/*<small>Choose the EMI tenure that is best for you</small>*/}
             </CustomBox>
             {
-                lenderDetailsList?.map((emiDetails) => {
+                lenderDetails && lenderDetailsList?.map((emiDetails) => {
                     return (
                         <TenureInfo
                             key={emiDetails.lenderInfoId}
@@ -68,7 +77,7 @@ const TenureSelection = () => {
                             monthlyInstallment={emiDetails.monthlyInstallment}
                             loanAmount={emiDetails.loanAmount}
                             totalInterest={emiDetails.totalInterest}
-                            onChangeOption={() => setSelectedOption(emiDetails.lenderInfoId)}
+                            onChangeOption={() => handleSelectedTenureChange(emiDetails.lenderInfoId)}
                             checkChecked={selectedOption === emiDetails.lenderInfoId}
                             lenderInfoId={emiDetails.lenderInfoId}
                             selectedLenderInfoId={selectedOption}

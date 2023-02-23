@@ -11,61 +11,15 @@ import { useNavigate, redirect } from 'react-router-dom';
 const TwoFAuthentication = () => {
   const navigate = useNavigate();
   const { detailsId } = useParams();
-  const { lenderDetails, setLenderdetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues } = AppState();
+  const { lenderDetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues } = AppState();
 
   useEffect(() => {
     if (lenderDetails === null) {
-      // return navigate(`/transaction/lender-selection/${detailsId}`)
+      return navigate(`/transaction/lender-selection/${detailsId}`)
     }
   }, [])
 
-  const fetchLenderDetails = async () => {
-    try {
-      setLoading(true)
-      const result = await GetLenderDetails(detailsId);
-      setLoading(false)
-      
-      if (result.data.statusCode === 200) {
-        setUser({
-          name: result.data.userName,
-          uid: result.data.userId,
-          mobile: result.data.mobileNumber,
-          amount: result.data.amount,
-          detailsId: detailsId
-        })
-        setLenderdetails({
-          //change 0 to trackStageValue.selectedLenderId after complete flow
-          lenderName: result.data.lenderDetailsList[0].lenderName,
-          //change 0 to trackStageValue.selectedTenureId after complete flow
-          tenure: result.data.lenderDetailsList[0].emiDetailsList[0].loanDuration,
-          tenureType: result.data.lenderDetailsList[0].emiDetailsList[0].tenureType,
-          lenderType: result.data.lenderDetailsList[0].lenderType,
-          monthlyInstallment: result.data.lenderDetailsList[0].emiDetailsList[0].monthlyInstallment,
-          interest: result.data.lenderDetailsList[0].emiDetailsList[0].totalInterest,
-          loanAmount: result.data.lenderDetailsList[0].emiDetailsList[0].loanAmount,
-          totalAmount: result.data.lenderDetailsList[0].emiDetailsList[0].totalInterest + result.data.amount
-        })
-      } else {
-        setAlert({
-          open: true,
-          message: result.data.errorMessage,
-          type: "error",
-        });
-        return navigate("/")
-      }
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: error.message,
-        type: "error",
-      });
-      return;
-    }
-  }
 
-  useEffect(() => {
-    fetchLenderDetails();
-  }, [detailsId])
 
 
   const [showCard2, setShowCard2] = useState(false);
@@ -122,16 +76,26 @@ const TwoFAuthentication = () => {
       const result = await VerifyNumber(panNumber, detailsId, "PAN");
       setLoading(false)
 
-      if (result.data.statusCode === 202) {
+      if (result.data.status === true) {
         handleShowCard2();
         setValidInput(false);
         setFormSubmitted(true);
+
+        setAlert({
+          open: true,
+          message: result.data.message,
+          type: "success",
+        });
+
       } else {
         setAlert({
           open: true,
-          message: result.data.errorMessage,
+          message: result.data.message,
           type: "error",
         });
+
+        // init fail txn
+        InitTxnFunc("FAIL")
       }
     } catch (error) {
       setAlert({
@@ -160,42 +124,57 @@ const TwoFAuthentication = () => {
       const result = await VerifyNumber(otpNumber, detailsId, "MOBILE");
       setLoading(false)
 
-      if (result.data.statusCode === 202) {
+      if (result.data.status === true) {
         setOtpFormSubmitted(true);
-        e.preventDefault();
-        try {
-          setLoading(true)
-          const result = await InitTxn("SUCCESS", detailsId);
-          setLoading(false)
 
-          if (result.data.statusCode === 201) {
-            setAlert({
-              open: true,
-              message: `Successful.`,
-              type: "success",
-            });
+        setAlert({
+          open: true,
+          message: result.data.message,
+          type: "success",
+        });
 
-            return navigate(`/`)
-
-          } else {
-            setAlert({
-              open: true,
-              message: result.data.errorMessage,
-              type: "error",
-            });
-          }
-        } catch (error) {
-          setAlert({
-            open: true,
-            message: error.message,
-            type: "error",
-          });
-          return;
-        }
+        // init success txn
+        InitTxnFunc("SUCCESS")
       } else {
         setAlert({
           open: true,
-          message: result.data.errorMessage,
+          message: result.data.message,
+          type: "error",
+        });
+
+        // init fail txn
+        InitTxnFunc("FAIL")
+      }
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: error.message,
+        type: "error",
+      });
+      return;
+    }
+  }
+
+  const InitTxnFunc = async (status) => {
+    try {
+      setLoading(true)
+      const result = await InitTxn(status, detailsId);
+      setLoading(false)
+
+      if (result.data.statusCode === 201) {
+        setAlert({
+          open: true,
+          message: result.data.message,
+          type: "success",
+        });
+
+        if(status === "SUCCESS") return navigate(`/transaction/payment/success`)
+        else if(status === "FAIL") return navigate(`/transaction/payment/failure`)
+
+      } else {
+        setAlert({
+          open: true,
+          message: result.data.message,
           type: "error",
         });
       }
@@ -210,7 +189,7 @@ const TwoFAuthentication = () => {
   }
   return (
     <>
-      <ConfirmationNavbar isHome={false} goBackUri={`/transaction/lender-selection/${detailsId}`} />
+      <ConfirmationNavbar goBackUri={`/transaction/lender-selection/${detailsId}`} detailsId={detailsId} />
 
       {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
       <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center", marginTop: "20px" }}>
@@ -229,7 +208,7 @@ const TwoFAuthentication = () => {
             {error && <div style={{ color: 'red' }}>Please enter 4 digits</div>}
             <br />
             <br />
-            <Button onClick={handlePanSubmit} variant="contained" color="primary" disabled={!isValidInput} >Submit</Button>
+            <Button onClick={handlePanSubmit} variant="contained" size="large" sx={{ backgroundColor: "#4DBE0E" }} disabled={!isValidInput} >Submit</Button>
           </CardContent>
         </Card>
       </div>
@@ -246,7 +225,8 @@ const TwoFAuthentication = () => {
               {otpError && <div style={{ color: 'red' }}>Please enter 4 digits</div>}
               <br />
               <br />
-              <Button onClick={handleOtpSubmit} variant="contained" color="primary" disabled={!isValidOtpInput || otpFormSubmitted}>Submit</Button>
+              <Button onClick={handleOtpSubmit} variant="contained" size="large" sx={{ backgroundColor: "#4DBE0E" }} disabled={!isValidOtpInput || otpFormSubmitted}>Submit</Button>
+
             </CardContent>
           </Card>
         }

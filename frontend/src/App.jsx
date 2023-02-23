@@ -17,7 +17,7 @@ function App() {
                 <Route exact path="/transaction/lender-selection/:detailsId" element={<LenderSelection/>}/>
                 <Route exact path="/transaction/tenure-selection/:detailsId" element={<TenureSelection/>}/>
                 <Route exact path="/transaction/confirm/:detailsId" element={<TwoFAuthentication />} />
-                <Route exact path="/transaction/payment" element={<TransactionStatus/>}/>
+                <Route exact path="/transaction/payment/:txnStatus" element={<TransactionStatus/>}/>
                 <Route path="*" element={<Error_404/>}/>
             </Routes>
             <Alert/>
