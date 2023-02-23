@@ -53,3 +53,39 @@ export const TrackStage = async (selection, selectedLenderId, selectedLenderInfo
     // console.log(res)
     return res;
 }
+
+export const VerifyNumber = async (number,detailsId,verificationType) => {
+    
+    const data = {
+        "detailsId":detailsId,
+        "receivedOtp":number
+    }
+    const res = await Axios.post(
+        `${API_URL}/twoFVerification/${verificationType}`,
+        data
+    ).catch((err) => {
+        if (err.response.data.statusCode === 400 || err.response.data.statusCode === 500) {
+            // open setAlert here
+            return err.response;
+        }
+    })
+    
+    return res;
+}
+
+export const InitTxn = async (status,detailsId) => {
+    const data = {
+        "detailsId":detailsId,
+        "status":status
+    }
+    const res = await Axios.post(
+        `${API_URL}/initTxn`,
+        data
+    ).catch((err) => {
+        if(err.response.data.statusCode === 400 || err.response.data.statusCode === 500){
+            return err.response;
+        }
+    })
+    return res;
+}
+

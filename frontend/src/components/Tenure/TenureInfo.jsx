@@ -1,13 +1,12 @@
-import React from 'react';
-import {CustomBox} from "../Lender/Styles.jsx";
+import React, { useState } from 'react';
+import { CustomBox } from "../Lender/Styles.jsx";
 import Grid from "@mui/material/Grid";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee.js";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos.js";
 import Radio from '@mui/material/Radio';
 
 
-
-function TenureInfo({loanDuration,interestRate, monthlyInstallment,loanAmount,totalInterest}) {
+function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount, totalInterest, lenderInfoId, onChangeOption, checkChecked, selectedLenderInfoId }) {
+    
     return (
         <>
             <CustomBox>
@@ -22,11 +21,11 @@ function TenureInfo({loanDuration,interestRate, monthlyInstallment,loanAmount,to
                 >
                     <Grid item>
                         <Radio
-                            // checked={selectedValue === 'a'}
-                            // onChange={handleChange}
-                            value="a"
+                            checked={checkChecked}
+                            onChange={onChangeOption}
+                            value={lenderInfoId}
                             name="radio-buttons"
-                            inputProps={{ 'aria-label': 'A' }}
+                            inputProps={{ 'aria-label': lenderInfoId }}
                         />
                     </Grid>
 
@@ -35,13 +34,13 @@ function TenureInfo({loanDuration,interestRate, monthlyInstallment,loanAmount,to
                         <small>months</small>
                     </Grid>
 
-                    <Grid item xs  sx={{marginLeft: "10px", alignContent: "center"}}>
-                        <h4><b> <CurrencyRupeeIcon sx={{fontSize: "12px"}}/></b> {monthlyInstallment} </h4>
+                    <Grid item xs sx={{ marginLeft: "10px", alignContent: "center" }}>
+                        <h4><b> <CurrencyRupeeIcon sx={{ fontSize: "12px" }} /></b> {monthlyInstallment} </h4>
                         <small>/month</small>
 
                     </Grid>
                     <Grid item xs={4}>
-                        <h4><b> <CurrencyRupeeIcon sx={{fontSize: "12px"}}/></b> {loanAmount+totalInterest} </h4>
+                        <h4><b> <CurrencyRupeeIcon sx={{ fontSize: "12px" }} /></b> {loanAmount + totalInterest} </h4>
                         <small> Total @{interestRate}% p.a.</small>
                     </Grid>
                 </Grid>
