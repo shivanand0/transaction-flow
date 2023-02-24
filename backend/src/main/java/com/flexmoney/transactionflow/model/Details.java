@@ -15,6 +15,7 @@ import java.util.List;
 public class Details {
 
     private Integer statusCode;
+    private boolean status;
     private String message;
     private String userName;
 

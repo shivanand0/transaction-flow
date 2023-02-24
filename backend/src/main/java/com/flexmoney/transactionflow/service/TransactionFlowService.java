@@ -125,6 +125,7 @@ public class TransactionFlowService implements ITransactionFlowService {
             return new ResponseEntity<>(Details
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .status(false)
                     .message("You're not approved by our lenders for this transaction")
                     .build(),
                     HttpStatus.BAD_REQUEST
@@ -190,6 +191,7 @@ public class TransactionFlowService implements ITransactionFlowService {
 
         return new ResponseEntity<>(Details.builder()
                 .statusCode(HttpStatus.OK.value())
+                .status(true)
                 .userName(userRepository.findById(userId).get().getUserName())
                 .mobileNumber(mobileNumber)
                 .amount(amount)
@@ -215,7 +217,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 if(verificationType.equals("PAN")){
                         boolean check = checkTxnCountValues(detailsId, "panotp");
                         if(check == false){
-                            msg = "You're not approved by our lenders for transaction";
+                            msg = "PAN-OTP-EXCEED";
                             statusCode = HttpStatus.BAD_REQUEST;
                             status=false;
                         }
@@ -235,7 +237,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 } else if(verificationType.equals("MOBILE")){
                         boolean check = checkTxnCountValues(detailsId, "mobileotp");
                         if(check == false){
-                            msg = "You're not approved by our lenders for transaction";
+                            msg = "MOB-OTP-EXCEED";
                             statusCode = HttpStatus.BAD_REQUEST;
                             status=false;
                         }
@@ -274,7 +276,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                     TransactionResponse transactionResponse = new TransactionResponse();
                     transactionResponse.setStatus(false);
                     transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                    transactionResponse.setMessage("You're not approved by our lenders for transaction");
+                    transactionResponse.setMessage("TIMEOUT");
 
                     return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
                 }
