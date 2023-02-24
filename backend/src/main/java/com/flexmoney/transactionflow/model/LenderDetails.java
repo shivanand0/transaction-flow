@@ -14,6 +14,9 @@ import java.util.List;
 public class LenderDetails {
     private Integer lenderId;
     private String lenderName;
+    private String primaryLogoUrl;
+
+    private String secondaryLogoUrl;
     private String lenderType;
     private List<EmiDetails> emiDetailsList;
 }

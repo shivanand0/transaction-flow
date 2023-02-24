@@ -29,7 +29,7 @@ const ConfirmationNavbar = ({ goBackUri, detailsId }) => {
     const lenderInfo = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1] : null
 
     useEffect(() => {
-        lenderInfo&& lenderInfo.emiDetailsList.map((e) => {
+        lenderInfo && lenderInfo.emiDetailsList.map((e) => {
             if (e.lenderInfoId === trackStageValues.selectedLenderInfoId) {
                 setEmiDetails({
                     loanDuration: e.loanDuration,
@@ -39,6 +39,7 @@ const ConfirmationNavbar = ({ goBackUri, detailsId }) => {
                     loanAmount: e.loanAmount,
                     totalAmount: e.loanAmount + e.totalInterest
                 })
+                return;
             }
         })
     }, [])

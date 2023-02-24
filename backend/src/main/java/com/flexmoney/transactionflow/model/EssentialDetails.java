@@ -41,6 +41,12 @@ public class EssentialDetails {
     @NotNull(message = "Please send the amount")
     private double amount;
 
+    public Integer txnCount;
+
+    public Integer PanOTPCount;
+
+    public Integer MobOTPCount;
+
     private String status;
 
     private String remark;

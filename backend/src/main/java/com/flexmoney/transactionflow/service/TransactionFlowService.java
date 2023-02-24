@@ -118,7 +118,6 @@ public class TransactionFlowService implements ITransactionFlowService {
 
     @Override
     public Details getDetails(UUID detailsId) {
-        //do a check in the essentialDetails table for the status and then proceed
 
         Optional<EssentialDetails> detailsDTO = essentialDetailsRepository.findById(detailsId);
         Long userId = detailsDTO.get().getUserId();
@@ -168,6 +167,8 @@ public class TransactionFlowService implements ITransactionFlowService {
             LenderDetails lenderDetails = LenderDetails.builder()
                     .lenderId(lenderID)
                     .lenderName(lenderRepository.findById(lenderID).get().getLenderName())
+                    .primaryLogoUrl(lenderRepository.findById(lenderID).get().getPrimaryLogoUrl())
+                    .secondaryLogoUrl(lenderRepository.findById(lenderID).get().getSecondaryLogoUrl())
                     .lenderType("EMI")
                     .emiDetailsList(emiDetailsList)
                     .build();
@@ -198,26 +199,42 @@ public class TransactionFlowService implements ITransactionFlowService {
                 UserModel userModel = userRepository.findById(userId).get();
 
                 if(verificationType.equals("PAN")){
-                        long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+                        boolean check = checkTxnCountValues(detailsId, "panotp");
+                        if(check == false){
+                            msg = "You're not approved by our lenders for transaction";
+                            statusCode = HttpStatus.BAD_REQUEST;
+                            status=false;
+                        }
+                        else {
+                            long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
 
-                        if(receivedOtp == lastFourDigitsOfPan){
+                            if (receivedOtp == lastFourDigitsOfPan) {
                                 msg = "PAN Verification Successfull";
                                 statusCode = HttpStatus.ACCEPTED;
-                                status=true;
-                        } else{
+                                status = true;
+                            } else {
                                 msg = "PAN Verification Failed";
                                 statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status=false;
+                                status = false;
+                            }
                         }
                 } else if(verificationType.equals("MOBILE")){
-                        if(receivedOtp == expectedMobileOtp){
+                        boolean check = checkTxnCountValues(detailsId, "mobileotp");
+                        if(check == false){
+                            msg = "You're not approved by our lenders for transaction";
+                            statusCode = HttpStatus.BAD_REQUEST;
+                            status=false;
+                        }
+                        else {
+                            if (receivedOtp == expectedMobileOtp) {
                                 msg = "Mobile Verification Successfull";
                                 statusCode = HttpStatus.ACCEPTED;
-                                status=true;
-                        } else{
+                                status = true;
+                            } else {
                                 msg = "Mobile Verification Failed";
                                 statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status=false;
+                                status = false;
+                            }
                         }
                 } else{
                         msg = "Bad Request";
@@ -237,6 +254,16 @@ public class TransactionFlowService implements ITransactionFlowService {
         public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
                 UUID detailsId = transactionDTO.getDetailsId();
                 String status = transactionDTO.getStatus();
+
+                boolean check = checkTxnCountValues(detailsId, "txncount");
+                if(check == false){
+                    TransactionResponse transactionResponse = new TransactionResponse();
+                    transactionResponse.setStatus(false);
+                    transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+                    transactionResponse.setMessage("You're not approved by our lenders for transaction");
+
+                    return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+                }
 
                 EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
                 long userId = essentialDetails.getUserId();
@@ -261,4 +288,35 @@ public class TransactionFlowService implements ITransactionFlowService {
                 return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
         }
 
+        public boolean checkTxnCountValues(UUID detailsId, String checkFor){
+            // checkFor : txncount, panotp, mobileotp
+            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+            boolean val=false;
+            Integer cnt=0;
+            if(essentialDetails == null) {
+                val = false;
+            } else {
+                Integer txnCount = essentialDetails.getTxnCount();
+                Integer PanOTPCount = essentialDetails.getPanOTPCount();
+                Integer MobOTPCount = essentialDetails.getMobOTPCount();
+
+                if(checkFor == "txncount") cnt = txnCount;
+                else if(checkFor == "panotp") cnt = PanOTPCount;
+                else if(checkFor == "mobileotp") cnt = MobOTPCount;
+
+                if(cnt >= 3){
+                    val = false;
+                }else{
+                    val = true;
+                    // Update count++
+                    if(checkFor == "txncount") ++txnCount;
+                    else if(checkFor == "panotp") ++PanOTPCount;
+                    else if(checkFor == "mobileotp") ++MobOTPCount;
+
+                    essentialDetailsRepository.updateFieldsById(txnCount, PanOTPCount, MobOTPCount, detailsId);
+                }
+            }
+
+            return val;
+        }
 }
