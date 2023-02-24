@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface ITransactionRepository extends JpaRepository<TransactionModel, UUID> {
+    TransactionModel findByDetailsId(UUID detailsId);
 }

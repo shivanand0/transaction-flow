@@ -236,6 +236,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                         }
                 } else if(verificationType.equals("MOBILE")){
                         boolean check = checkTxnCountValues(detailsId, "mobileotp");
+
                         if(check == false){
                             msg = "MOB-OTP-EXCEED";
                             statusCode = HttpStatus.BAD_REQUEST;
@@ -307,8 +308,8 @@ public class TransactionFlowService implements ITransactionFlowService {
         public boolean checkTxnCountValues(UUID detailsId, String checkFor){
             // checkFor : txncount, panotp, mobileotp
             EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-            boolean status=false;
-            String remark;
+            boolean status=true;
+            String remark="";
             Integer cnt=0;
             if(essentialDetails == null) {
                 status = false;
@@ -347,15 +348,26 @@ public class TransactionFlowService implements ITransactionFlowService {
                     }
                     else if(checkFor == "panotp") {
                         ++PanOTPCount;
+                        status=true;
+                        remark="success";
                     }
                     else if(checkFor == "mobileotp") {
                         ++MobOTPCount;
+                        status=true;
+                        remark="success";
                     }
 
                     essentialDetailsRepository.updateFieldsById(txnCount, PanOTPCount, MobOTPCount, detailsId);
                 }
             }
 
+            TransactionModel transactionModel = transactionRepository.findByDetailsId(detailsId);
+            if(transactionModel != null) {
+                status=false;
+                remark="txn completed already";
+            }
+
             return status;
+
         }
 }
