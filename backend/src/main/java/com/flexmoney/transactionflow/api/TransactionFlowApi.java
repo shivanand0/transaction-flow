@@ -34,7 +34,7 @@ public class TransactionFlowApi {
         }
 
         @PostMapping("/details")
-        public Details getDetails(@RequestParam UUID uuid){
+        public ResponseEntity<Details> getDetails(@RequestParam UUID uuid){
                 return transactionFlowService.getDetails(uuid);
         }
 

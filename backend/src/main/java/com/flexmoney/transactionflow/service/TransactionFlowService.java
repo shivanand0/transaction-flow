@@ -7,10 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
@@ -66,6 +64,9 @@ public class TransactionFlowService implements ITransactionFlowService {
                 .userId(userModel.getId())
                 .mobileNumber(userDTO.getMobileNumber())
                 .amount(userDTO.getAmount())
+                .txnCount(0)
+                .PanOTPCount(0)
+                .MobOTPCount(0)
                 .build();
 
         essentialDetailsRepository.save(essentialDetails);
@@ -117,7 +118,18 @@ public class TransactionFlowService implements ITransactionFlowService {
     }
 
     @Override
-    public Details getDetails(UUID detailsId) {
+    public ResponseEntity<Details> getDetails(UUID detailsId) {
+        boolean check = checkTxnCountValues(detailsId, "txncount");
+        if(check == false){
+            // thro error "You're not approved by our lenders for transaction";
+            return new ResponseEntity<>(Details
+                    .builder()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .message("You're not approved by our lenders for this transaction")
+                    .build(),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
 
         Optional<EssentialDetails> detailsDTO = essentialDetailsRepository.findById(detailsId);
         Long userId = detailsDTO.get().getUserId();
@@ -175,13 +187,15 @@ public class TransactionFlowService implements ITransactionFlowService {
 
             lenderDetailsList.add(lenderDetails);
         }
-        return Details.builder()
+
+        return new ResponseEntity<>(Details.builder()
                 .statusCode(HttpStatus.OK.value())
                 .userName(userRepository.findById(userId).get().getUserName())
                 .mobileNumber(mobileNumber)
                 .amount(amount)
                 .lenderDetailsList(lenderDetailsList)
-                .build();
+                .build(), HttpStatus.OK);
+
     }
 
 
@@ -291,10 +305,12 @@ public class TransactionFlowService implements ITransactionFlowService {
         public boolean checkTxnCountValues(UUID detailsId, String checkFor){
             // checkFor : txncount, panotp, mobileotp
             EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-            boolean val=false;
+            boolean status=false;
+            String remark;
             Integer cnt=0;
             if(essentialDetails == null) {
-                val = false;
+                status = false;
+                remark = "Invalid Transaction ID";
             } else {
                 Integer txnCount = essentialDetails.getTxnCount();
                 Integer PanOTPCount = essentialDetails.getPanOTPCount();
@@ -305,18 +321,39 @@ public class TransactionFlowService implements ITransactionFlowService {
                 else if(checkFor == "mobileotp") cnt = MobOTPCount;
 
                 if(cnt >= 3){
-                    val = false;
+                    status = false;
+                    remark = "Rate limiter hit";
                 }else{
-                    val = true;
                     // Update count++
-                    if(checkFor == "txncount") ++txnCount;
-                    else if(checkFor == "panotp") ++PanOTPCount;
-                    else if(checkFor == "mobileotp") ++MobOTPCount;
+                    if(checkFor == "txncount") {
+                        ++txnCount;
+
+                        // check the created timestamp with current timestamp
+                        Date d1 = essentialDetails.getCreatedAt();
+                        Date d2 = new Date();
+
+                        long difference_In_Time = d2.getTime() - d1.getTime();
+                        long difference_In_Minutes = (difference_In_Time / (1000 * 60)) % 60;
+
+                        if(difference_In_Minutes > 10) {
+                            status = false;
+                            remark = "transaction timeout";
+                        }
+
+                        status=true;
+                        remark="success";
+                    }
+                    else if(checkFor == "panotp") {
+                        ++PanOTPCount;
+                    }
+                    else if(checkFor == "mobileotp") {
+                        ++MobOTPCount;
+                    }
 
                     essentialDetailsRepository.updateFieldsById(txnCount, PanOTPCount, MobOTPCount, detailsId);
                 }
             }
 
-            return val;
+            return status;
         }
 }
