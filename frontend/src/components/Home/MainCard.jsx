@@ -137,6 +137,7 @@ const MainCard = () => {
               loading && <LoadingButton
                 loading
                 loadingPosition="start"
+                size="large"
                 startIcon={<SaveIcon />}
                 variant="contained"
                 sx={{ backgroundColor: "#4DBE0E" }}

@@ -50,7 +50,6 @@ const LenderSelection = () => {
     const handleLenderOnclick = async () => {
         try {
             const result = await TrackStage(trackStageValues.selection, trackStageValues.selectedLenderId, trackStageValues.selectedLenderInfoId, detailsId)
-
         } catch (error) {
             setAlert({
                 open: true,
@@ -61,16 +60,22 @@ const LenderSelection = () => {
         }
     }
 
+    const handleArrowOnClick = (lenderId) => {
+        handleSelectLenderId(lenderId)
+        handleLenderOnclick()
+        return navigate(`/transaction/tenure-selection/${detailsId}`)
+    }
+
     useEffect(() => {
-        fetchLenderDetails();
+        if (lenderDetails === null) fetchLenderDetails();
     }, [detailsId])
 
     useEffect(() => {
         handleLenderOnclick();
     }, [trackStageValues])
 
-    const lenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
-
+    const fetchedLenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
+    
     const handleSelectLenderId = (lenderId) => {
         setTrackStageValues({
             selection: "LENDER_SELECTION",
@@ -78,10 +83,10 @@ const LenderSelection = () => {
             selectedLenderInfoId: null
         })
     }
-
+    
     return (
         <>
-            <Navbar isHome={false} />
+            <Navbar isHome={false} goBackUri={`/`} />
             {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
             <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
                 <h3>Select Lender</h3>
@@ -89,7 +94,7 @@ const LenderSelection = () => {
             </CustomBox>
 
             {
-                lenderDetailsList?.map((lender) => {
+                fetchedLenderDetailsList?.map((lender) => {
                     const data = lender.emiDetailsList[0]
                     let str = `${data.monthlyInstallment} x ${data.loanDuration} ${data.tenureType}`
                     return (
@@ -98,8 +103,10 @@ const LenderSelection = () => {
                             bankName={lender.lenderName}
                             emiStarting={str}
                             key={lender.lenderId}
-                            onClick={() => handleSelectLenderId(lender.lenderId)}
+                            onClickLender={() => handleSelectLenderId(lender.lenderId)}
+                            onClickArrow={() => handleArrowOnClick(lender.lenderId)}
                         />
+
                     )
                 })
             }

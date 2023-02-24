@@ -12,9 +12,9 @@ import { CustomBox } from './Styles';
 import { AppState } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = ({ isHome }) => {
+const Navbar = ({ isHome, goBackUri }) => {
     const navigate = useNavigate();
-    const goBack = () => navigate("/");
+    const goBack = () => navigate(goBackUri);
     const { user } = AppState();
 
     return (
