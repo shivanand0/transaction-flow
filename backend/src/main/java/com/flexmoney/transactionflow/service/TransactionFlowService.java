@@ -132,6 +132,18 @@ public class TransactionFlowService implements ITransactionFlowService {
             );
         }
 
+        boolean check2 = checkIfTxnExists(detailsId);
+        if(check2 == true){
+            return new ResponseEntity<>(Details
+                    .builder()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .status(false)
+                    .message("This transaction is completed!")
+                    .build(),
+                    HttpStatus.BAD_REQUEST
+            );
+        };
+
         Optional<EssentialDetails> detailsDTO = essentialDetailsRepository.findById(detailsId);
         Long userId = detailsDTO.get().getUserId();
         double amount = detailsDTO.get().getAmount();
