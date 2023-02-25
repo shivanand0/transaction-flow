@@ -47,7 +47,7 @@ const ConfirmationNavbar = ({ goBackUri, detailsId }) => {
     return (
         <>
             <CustomBox
-                sx={{ display: "flex", justifyContent: "flex-end" }}
+                sx={{ display: "flex", justifyContent: "flex-end",marginLeft:"-240px" }}
             >
                 <img src={PoweredBySVG} alt="Your SVG" width="150" />
             </CustomBox>
@@ -98,6 +98,7 @@ const ConfirmationNavbar = ({ goBackUri, detailsId }) => {
             <CustomBox
                 sx={{
                     marginTop: "70px",
+                    marginLeft: "600px",
                     display: "flex",
                     justifyContent: "flex-start",
                     padding: "0 0 10px 10px",

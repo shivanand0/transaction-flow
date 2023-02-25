@@ -22,6 +22,8 @@ const AppContext = ({ children }) => {
 
   const [loading, setLoading] = useState(false)
 
+  const [transactionStatus, setTransactionStatus] = useState("")
+
   const [trackStageValues, setTrackStageValues] = useState({
       selection: "LENDER_SELECTION",
       selectedLenderId: null,
@@ -29,7 +31,7 @@ const AppContext = ({ children }) => {
   })
   
   return (
-      <App.Provider value={{alert, setAlert, user, setUser, lenderDetails, setLenderdetails, loading, setLoading, trackStageValues, setTrackStageValues}} >
+      <App.Provider value={{alert, setAlert, user, setUser, lenderDetails, setLenderdetails, loading, setLoading, trackStageValues, setTrackStageValues, transactionStatus, setTransactionStatus}} >
           { children }
       </App.Provider>
   );

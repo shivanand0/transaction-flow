@@ -4,7 +4,7 @@ export const CustomAppbar = styled(AppBar)(({ theme }) => ({
     top: "50px",
     backgroundColor: "#fff",
     color: "#000",
-    width: "80%",
+    width: "35%",
     margin: "auto",
     [theme.breakpoints.down("sm")]: {
         width: "100%"

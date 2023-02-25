@@ -20,7 +20,7 @@ const Navbar = ({ isHome, goBackUri }) => {
     return (
         <>
             <CustomBox
-                sx={{ display: "flex", justifyContent: "flex-end" }}
+                sx={{ display: "flex", justifyContent: "flex-end", marginLeft:"-240px"}}
             >
                 <img src={PoweredBySVG} alt="Your SVG" width="150" />
             </CustomBox>
@@ -56,6 +56,7 @@ const Navbar = ({ isHome, goBackUri }) => {
                     <CustomBox
                         sx={{
                             display: "flex",
+                            marginLeft: "600px",
                             justifyContent: "flex-start",
                             padding: "0 0 10px 10px",
                             top: "130px"

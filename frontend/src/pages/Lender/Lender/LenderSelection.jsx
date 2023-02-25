@@ -88,7 +88,7 @@ const LenderSelection = () => {
         <>
             <Navbar isHome={false} goBackUri={`/`} />
             {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
-            <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
+            <CustomBox sx={{marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
                 <h3>Select Lender</h3>
 
             </CustomBox>
