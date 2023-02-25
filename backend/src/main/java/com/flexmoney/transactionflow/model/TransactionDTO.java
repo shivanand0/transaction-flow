@@ -12,4 +12,6 @@ import java.util.UUID;
 public class TransactionDTO {
     private UUID detailsId;
     private String status;
+
+    private String remark;
 }

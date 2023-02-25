@@ -21,4 +21,8 @@ public interface IEssentialDetailsRepository extends JpaRepository<EssentialDeta
     @Modifying
     @Query(value = "UPDATE EssentialDetails e SET e.txnCount=:txnCount,e.PanOTPCount = :PanOTPCount, e.MobOTPCount = :MobOTPCount WHERE e.detailsId = :id")
     void updateFieldsById(@Param("txnCount") Integer txnCount, @Param("PanOTPCount") Integer PanOTPCount, @Param("MobOTPCount") Integer MobOTPCount, @Param("id") UUID id);
+
+    @Modifying
+    @Query(value = "UPDATE EssentialDetails e SET e.status=:status, e.remark = :remark WHERE e.detailsId = :id")
+    void updateStatusRemarkById(@Param("id") UUID id, @Param("status") String status, @Param("remark") String remark);
 }

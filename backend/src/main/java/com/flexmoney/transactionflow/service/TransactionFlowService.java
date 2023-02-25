@@ -268,9 +268,10 @@ public class TransactionFlowService implements ITransactionFlowService {
     }
 
         @Override
-        public ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO) {
+        public ResponseEntity<TransactionResponse> InitTransaction(String txnType, TransactionDTO transactionDTO) {
                 UUID detailsId = transactionDTO.getDetailsId();
                 String status = transactionDTO.getStatus();
+                String remark = transactionDTO.getRemark();
 
                 boolean check = checkTxnCountValues(detailsId, "txncount");
                 if(check == false){
@@ -279,23 +280,63 @@ public class TransactionFlowService implements ITransactionFlowService {
                     transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
                     transactionResponse.setMessage("TIMEOUT");
 
-                    return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+                    return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
                 }
 
-                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-                long userId = essentialDetails.getUserId();
-                UUID trackId = essentialDetails.getTrackId();
+                if(txnType.equals("initiate")){
+                    boolean checkTxnExists = checkIfTxnExists(detailsId);
+                    if(checkTxnExists == true){
+                        TransactionResponse transactionResponse = new TransactionResponse();
+                        transactionResponse.setStatus(false);
+                        transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+                        transactionResponse.setMessage("Transaction already initiated");
 
-                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+                        return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
+                    }
 
-                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+                    EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
 
-                TransactionModel transaction = new TransactionModel();
-                transaction.setDetailsId(detailsId);
-                transaction.setUserId(userId);
-                transaction.setLenderInfoId(lenderInfoId);
-                transaction.setStatus(status);
-                transactionRepository.save(transaction);
+                    long userId = essentialDetails.getUserId();
+                    UUID trackId = essentialDetails.getTrackId();
+
+                    TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+
+                    Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+
+                    TransactionModel transaction = new TransactionModel();
+                    transaction.setDetailsId(detailsId);
+                    transaction.setUserId(userId);
+                    transaction.setLenderInfoId(lenderInfoId);
+                    transaction.setStatus(status); // here status will be "initiate"
+                    transactionRepository.save(transaction);
+
+                    essentialDetailsRepository.updateStatusRemarkById(detailsId, txnType, remark);
+                } else if(txnType.equals("confirm")){
+                    // here status will be SUCCESS / FAIL based on OTP verification
+                    boolean checkTxnExists = checkIfTxnExists(detailsId);
+                    if(checkTxnExists == false){
+                        TransactionResponse transactionResponse = new TransactionResponse();
+                        transactionResponse.setStatus(false);
+                        transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+                        transactionResponse.setMessage("Transaction not initiated");
+
+                        return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
+                    }
+
+                    TransactionModel transaction = transactionRepository.findByDetailsId(detailsId);
+                    UUID txnId = transaction.getTxnId();
+                    transactionRepository.updateFieldsById(txnId, status);
+
+                    essentialDetailsRepository.updateStatusRemarkById(detailsId, txnType, status+" "+remark);
+
+                } else {
+                    TransactionResponse transactionResponse = new TransactionResponse();
+                    transactionResponse.setStatus(false);
+                    transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+                    transactionResponse.setMessage("URL not found");
+
+                    return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
+                }
 
                 TransactionResponse transactionResponse = new TransactionResponse();
                 transactionResponse.setStatus(true);
@@ -360,13 +401,17 @@ public class TransactionFlowService implements ITransactionFlowService {
                 }
             }
 
+            return status;
+        }
+
+        public boolean checkIfTxnExists(UUID detailsId){
+            boolean status=false;
             TransactionModel transactionModel = transactionRepository.findByDetailsId(detailsId);
             if(transactionModel != null) {
-                status=false;
-                remark="txn completed already";
+                // if txn entry with detailsID exists then return true
+                status = true;
             }
 
             return status;
-
         }
 }
