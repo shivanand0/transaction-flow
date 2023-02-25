@@ -82,11 +82,13 @@ const TwoFAuthentication = () => {
         setValidInput(false);
         setFormSubmitted(true);
 
+        // initiate the transaction /initTxn/initiate
+        InitTxnFunc("INITIATE", result.data.message, "initiate")
       } else {
         let errMsg1 = "";
         if (result.data.message === "PAN-OTP-EXCEED") {
           // init fail txn
-          InitTxnFunc("FAIL")
+          InitTxnFunc("FAIL", result.data.message, "initiate")
           errMsg1 = "PAN Verification Failed"
         } else {
           errMsg1 = result.data.message
@@ -130,14 +132,14 @@ const TwoFAuthentication = () => {
       if (result.data.status === true) {
         setOtpFormSubmitted(true);
 
-        // init success txn
-        InitTxnFunc("SUCCESS")
+        // confirm success txn
+        InitTxnFunc("SUCCESS", result.data.message, "confirm")
       } else {
         let errMsg2 = "";
         if (result.data.message === "MOB-OTP-EXCEED") {
-          // init fail txn
-          InitTxnFunc("FAIL")
-          errMsg2 = "PAN Verification Failed"
+          // confirm fail txn
+          InitTxnFunc("FAIL", result.data.message, "confirm")
+          errMsg2 = "Mobile Verification Failed"
         } else {
           errMsg2 = result.data.message
         }
@@ -158,10 +160,11 @@ const TwoFAuthentication = () => {
     }
   }
 
-  const InitTxnFunc = async (status) => {
+  const InitTxnFunc = async (status, remark, stage) => {
     try {
       setLoading(true)
-      const result = await InitTxn(status, detailsId);
+      // status, detailsId, remark, stage
+      const result = await InitTxn(status, detailsId, remark, stage);
       setLoading(false)
 
       if (result.data.statusCode === 201) {

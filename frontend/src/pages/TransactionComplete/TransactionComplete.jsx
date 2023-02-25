@@ -12,9 +12,9 @@ const TransactionComplete = () => {
             <div style={{ justifyContent: "center", marginTop: "20px", display: "flex" }}>
                 <h4>Transaction from Flexmoney complete</h4>
             </div>
-            <div style={{ justifyContent: "center", marginTop: "70px", display: "flex",color:"red" }}>
+            {/* <div style={{ justifyContent: "center", marginTop: "70px", display: "flex",color:"red" }}>
                 DETAILS ID : {user.detailsId} 
-            </div>
+            </div> */}
             <div style={{ justifyContent: "center", marginTop: "15px", display: "flex",color:"red" }}>
                 NAME : {user.name} 
             </div>

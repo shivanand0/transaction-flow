@@ -70,13 +70,15 @@ export const VerifyNumber = async (number,detailsId,verificationType) => {
     return res;
 }
 
-export const InitTxn = async (status,detailsId) => {
+export const InitTxn = async (status, detailsId, remark, stage) => {
+    // stage: initiate or confirm
     const data = {
-        "detailsId":detailsId,
-        "status":status
+        "detailsId": detailsId,
+        "status": status,
+        "remark": remark
     }
     const res = await Axios.post(
-        `${API_URL}/initTxn`,
+        `${API_URL}/initTxn/${stage}`,
         data
     ).catch((err) => {
         if(err.response.data.statusCode === 400 || err.response.data.statusCode === 500){
