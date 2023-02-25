@@ -46,7 +46,7 @@ const CheckStatus = ({ txnDetails }) => {
 const TransactionStatus = (props) => {
     const { txnStatus } = useParams()
     const navigate = useNavigate()
-    const { trackStageValues, lenderDetails, user,setStatus } = AppState()
+    const { trackStageValues, lenderDetails, user } = AppState()
 
     const [txnDetails, setTxnDetails] = useState({
         loanDuration: "",
