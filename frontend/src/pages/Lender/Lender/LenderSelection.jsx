@@ -32,10 +32,10 @@ const LenderSelection = () => {
             } else {
                 setAlert({
                     open: true,
-                    message: result.data.errorMessage,
+                    message: result.data.errorMessage || result.data.message,
                     type: "error",
                 });
-                return navigate("/")
+                return navigate("/transaction/payment/failure")
             }
         } catch (error) {
             setAlert({

@@ -45,12 +45,6 @@ const MainCard = () => {
           detailsId: result.data.txnId
         })
 
-        setAlert({
-          open: true,
-          message: `Successful. Welcome ${name}...Redirecting`,
-          type: "success",
-        });
-
         return navigate(`/transaction/lender-selection/${result.data.txnId}`)
       } else {
         setAlert({

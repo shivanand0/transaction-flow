@@ -23,6 +23,9 @@ public class LenderModel {
 
     private String lenderName;
 
+    private String primaryLogoUrl;
+
+    private String secondaryLogoUrl;
     @CreationTimestamp
     private Date createdAt;
 

@@ -9,7 +9,7 @@ public interface ITransactionFlowService {
     ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception;
     ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO);
     LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
-    Details getDetails(UUID detailsId);
+    ResponseEntity<Details> getDetails(UUID detailsId);
 
     ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO);
 

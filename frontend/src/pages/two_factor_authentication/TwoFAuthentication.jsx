@@ -21,7 +21,7 @@ const TwoFAuthentication = () => {
 
 
 
-
+  const [showCard1, setShowCard1] = useState(true);
   const [showCard2, setShowCard2] = useState(false);
   const [panNumber, setPanNumber] = useState(null);
   const [otpNumber, setOtpNumber] = useState(null);
@@ -33,6 +33,7 @@ const TwoFAuthentication = () => {
   const [isValidOtpInput, setValidOtpInput] = useState(false);
   const handleShowCard2 = () => {
     setShowCard2(true);
+    setShowCard1(false);
   }
   const handlePanNumberChange = (event) => {
     const newValue = event.target.value;
@@ -88,14 +89,22 @@ const TwoFAuthentication = () => {
         });
 
       } else {
+        let errMsg1 = "";
+        if (result.data.message === "PAN-OTP-EXCEED") {
+          // init fail txn
+          InitTxnFunc("FAIL")
+          errMsg1 = "PAN Verification Failed"
+        } else {
+          errMsg1 = result.data.message
+        }
+
         setAlert({
           open: true,
-          message: result.data.message,
+          message: errMsg1,
           type: "error",
         });
 
-        // init fail txn
-        InitTxnFunc("FAIL")
+
       }
     } catch (error) {
       setAlert({
@@ -136,14 +145,20 @@ const TwoFAuthentication = () => {
         // init success txn
         InitTxnFunc("SUCCESS")
       } else {
+        let errMsg2 = "";
+        if (result.data.message === "MOB-OTP-EXCEED") {
+          // init fail txn
+          InitTxnFunc("FAIL")
+          errMsg2 = "PAN Verification Failed"
+        } else {
+          errMsg2 = result.data.message
+        }
+
         setAlert({
           open: true,
-          message: result.data.message,
+          message: errMsg2,
           type: "error",
         });
-
-        // init fail txn
-        InitTxnFunc("FAIL")
       }
     } catch (error) {
       setAlert({
@@ -162,14 +177,9 @@ const TwoFAuthentication = () => {
       setLoading(false)
 
       if (result.data.statusCode === 201) {
-        setAlert({
-          open: true,
-          message: result.data.message,
-          type: "success",
-        });
-
-        if(status === "SUCCESS") return navigate(`/transaction/payment/success`)
-        else if(status === "FAIL") return navigate(`/transaction/payment/failure`)
+        
+        if (status === "SUCCESS") return navigate(`/transaction/payment/success`)
+        else if (status === "FAIL") return navigate(`/transaction/payment/failure`)
 
       } else {
         setAlert({
@@ -197,20 +207,21 @@ const TwoFAuthentication = () => {
 
       </CustomBox>
       <div className="card-container" style={{ display: 'flex', justifyContent: 'center', marginTop: 165 }}>
-
-        <Card className="card" style={{ width: "500px" }}>
-          <CardContent align="center">
-            <h2>PAN Card Verification</h2>
-            <br />
-            <p>Please enter the last four digits of your PAN card</p>
-            <br />
-            <TextField type="number" value={panNumber} onChange={handlePanNumberChange} minLength="4" maxLength="4" disabled={formSubmitted}></TextField>
-            {error && <div style={{ color: 'red' }}>Please enter 4 digits</div>}
-            <br />
-            <br />
-            <Button onClick={handlePanSubmit} variant="contained" size="large" sx={{ backgroundColor: "#4DBE0E" }} disabled={!isValidInput} >Submit</Button>
-          </CardContent>
-        </Card>
+        {showCard1 &&
+          <Card className="card" style={{ width: "500px" }}>
+            <CardContent align="center">
+              <h2>PAN Card Verification</h2>
+              <br />
+              <p>Please enter the last four digits of your PAN card</p>
+              <br />
+              <TextField type="number" value={panNumber} onChange={handlePanNumberChange} minLength="4" maxLength="4" disabled={formSubmitted}></TextField>
+              {error && <div style={{ color: 'red' }}>Please enter 4 digits</div>}
+              <br />
+              <br />
+              <Button onClick={handlePanSubmit} variant="contained" size="large" sx={{ backgroundColor: "#4DBE0E" }} disabled={!isValidInput} >Submit</Button>
+            </CardContent>
+          </Card>
+        }
       </div>
 
       <div className="card-container" style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>

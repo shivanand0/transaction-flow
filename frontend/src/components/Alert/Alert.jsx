@@ -3,7 +3,7 @@ import { Snackbar } from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { AppState } from '../../context/AppContext'
 
-let vertical = 'bottom'
+let vertical = 'top'
 let horizontal = 'center'
 const Alert = () => {
 
@@ -21,7 +21,7 @@ const Alert = () => {
       <Snackbar
         anchorOrigin={{ vertical, horizontal }}
         open={alert.open}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={handleCloseAlert}
       >
         <MuiAlert
