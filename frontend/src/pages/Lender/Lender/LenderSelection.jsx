@@ -99,7 +99,7 @@ const LenderSelection = () => {
                     let str = `${data.monthlyInstallment} x ${data.loanDuration} ${data.tenureType}`
                     return (
                         <LenderInfo
-                            img={reactSVG}
+                            img={lender.primaryLogoUrl}
                             bankName={lender.lenderName}
                             emiStarting={str}
                             key={lender.lenderId}
