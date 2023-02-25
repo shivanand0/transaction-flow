@@ -19,7 +19,7 @@ function App() {
                 <Route exact path="/transaction/tenure-selection/:detailsId" element={<TenureSelection/>}/>
                 <Route exact path="/transaction/confirm/:detailsId" element={<TwoFAuthentication />} />
                 <Route exact path="/transaction/payment/:txnStatus" element={<TransactionStatus/>}/>
-                <Route exact path="/transaction-complete-page" element={<TransactionComplete/>}/>
+                <Route exact path="/transaction/complete" element={<TransactionComplete/>}/>
                 <Route path="*" element={<Error_404/>}/>
             </Routes>
             <Alert/>

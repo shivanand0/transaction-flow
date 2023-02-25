@@ -3,7 +3,7 @@ import { styled, Box } from "@mui/material";
 export const CustomBox = styled(Box)(({ theme }) => ({
     maxWidth: 500,
     margin: "auto",
-    marginTop: "5%",
+    marginTop: "3%",
     transform: "translateY(100%)",
     transition: "0.3s",
     boxShadow: "0 8px 40px -12px rgba(0,0,0,0.3)",

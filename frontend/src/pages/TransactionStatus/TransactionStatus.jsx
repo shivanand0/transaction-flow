@@ -93,7 +93,7 @@ const TransactionStatus = (props) => {
 
     useEffect(()=>{
         if(countdown===0){
-           return navigate('/transaction-complete-page');
+           return navigate('/transaction/complete');
         }
     },[countdown]);
 

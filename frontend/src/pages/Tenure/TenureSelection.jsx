@@ -87,7 +87,7 @@ const TenureSelection = () => {
             }
             <CustomBox
                 sx={{
-                    marginTop: { md: "10%", sm: "20%", xs: "40%" },
+                    marginTop: "3%",
                     display: "flex",
                     justifyContent: "center",
                 }}
