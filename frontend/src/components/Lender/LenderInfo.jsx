@@ -18,7 +18,7 @@ const LenderInfo = ({ img, bankName, emiStarting, onClickLender,onClickArrow }) 
                     }}
                 >
                     <Grid item xs={2}>
-                        <img src={img} alt="" />
+                        <img src={img} width="60" alt="" />
                     </Grid>
                     <Grid item xs>
                         <h4>{bankName}</h4>
