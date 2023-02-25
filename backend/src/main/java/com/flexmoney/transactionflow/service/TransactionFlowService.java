@@ -319,8 +319,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                 Integer PanOTPCount = essentialDetails.getPanOTPCount();
                 Integer MobOTPCount = essentialDetails.getMobOTPCount();
 
-                if(checkFor == "txncount") cnt = txnCount;
-                else if(checkFor == "panotp") cnt = PanOTPCount;
+                if(checkFor == "panotp") cnt = PanOTPCount;
                 else if(checkFor == "mobileotp") cnt = MobOTPCount;
 
                 if(cnt >= 3){
