@@ -44,8 +44,8 @@ public class TransactionFlowApi {
                 return transactionFlowService.OtpVerification(verificationType, twoFVerificationDTO);
         }
 
-        @PostMapping("/initTxn")
-        public ResponseEntity<TransactionResponse> initTransaction(@RequestBody TransactionDTO transactionDTO){
-                return transactionFlowService.InitTransaction(transactionDTO);
+        @PostMapping("/initTxn/{txnType}")
+        public ResponseEntity<TransactionResponse> initTransaction(@PathVariable("txnType") String txnType, @RequestBody TransactionDTO transactionDTO){
+                return transactionFlowService.InitTransaction(txnType, transactionDTO);
         }
 }

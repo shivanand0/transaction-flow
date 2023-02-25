@@ -14,5 +14,5 @@ public interface ITransactionFlowService {
     ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO);
 
 
-    ResponseEntity<TransactionResponse> InitTransaction(TransactionDTO transactionDTO);
+    ResponseEntity<TransactionResponse> InitTransaction(String txnType, TransactionDTO transactionDTO);
 }
