@@ -11,7 +11,7 @@ import { useNavigate, redirect } from 'react-router-dom';
 const TwoFAuthentication = () => {
   const navigate = useNavigate();
   const { detailsId } = useParams();
-  const { lenderDetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues } = AppState();
+  const { lenderDetails, loading, setLoading, setAlert, user, setUser, trackStageValues, setTrackStageValues, transactionStatus, setTransactionStatus } = AppState();
 
   useEffect(() => {
     if (lenderDetails === null) {
@@ -82,12 +82,6 @@ const TwoFAuthentication = () => {
         setValidInput(false);
         setFormSubmitted(true);
 
-        setAlert({
-          open: true,
-          message: result.data.message,
-          type: "success",
-        });
-
       } else {
         let errMsg1 = "";
         if (result.data.message === "PAN-OTP-EXCEED") {
@@ -136,12 +130,6 @@ const TwoFAuthentication = () => {
       if (result.data.status === true) {
         setOtpFormSubmitted(true);
 
-        setAlert({
-          open: true,
-          message: result.data.message,
-          type: "success",
-        });
-
         // init success txn
         InitTxnFunc("SUCCESS")
       } else {
@@ -178,8 +166,13 @@ const TwoFAuthentication = () => {
 
       if (result.data.statusCode === 201) {
         
-        if (status === "SUCCESS") return navigate(`/transaction/payment/success`)
-        else if (status === "FAIL") return navigate(`/transaction/payment/failure`)
+        if (status === "SUCCESS") {
+          setTransactionStatus("SUCCESS")
+          return navigate(`/transaction/payment/success`)
+        }
+        else if (status === "FAIL") {
+          setTransactionStatus("FAIL")
+          return navigate(`/transaction/payment/failure`)}
 
       } else {
         setAlert({

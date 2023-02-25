@@ -8,6 +8,7 @@ import PoweredBySVG from "../../assets/inline-powered-by.svg";
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Navigate} from 'react-router-dom';
 
 const CheckStatus = ({ txnDetails }) => {
     return (
@@ -45,7 +46,7 @@ const CheckStatus = ({ txnDetails }) => {
 const TransactionStatus = (props) => {
     const { txnStatus } = useParams()
     const navigate = useNavigate()
-    const { trackStageValues, lenderDetails, user } = AppState()
+    const { trackStageValues, lenderDetails, user,setStatus } = AppState()
 
     const [txnDetails, setTxnDetails] = useState({
         loanDuration: "",
@@ -54,6 +55,7 @@ const TransactionStatus = (props) => {
     })
     let status = false;
     if (txnStatus === "success") {
+ 
         status = true
     } else if (txnStatus === "failure") {
         status = false;
@@ -79,6 +81,22 @@ const TransactionStatus = (props) => {
 
     const img = status ? "https://img.icons8.com/color/96/null/checked--v1.png" : "https://img.icons8.com/color/96/null/cancel--v1.png";
 
+    const [countdown, setCountdown] = useState(3);
+
+    useEffect(()=>{
+        const intervalId = setInterval(()=>{
+            setCountdown(countdown-1);
+        },1000); 
+
+        return ()=>clearInterval(intervalId);
+    },[countdown]);
+
+    useEffect(()=>{
+        if(countdown===0){
+           return navigate('/transaction-complete-page');
+        }
+    },[countdown]);
+
     return (
 
         <div>
@@ -101,7 +119,10 @@ const TransactionStatus = (props) => {
                 textAlign: "center"
             }}>
                 <h3>Payment {status ? "Successful" : "Failed"}</h3>
+                <br />
                 <p>We've sent a confirmation message on your mobile number {user.mobile} </p>
+                <br />
+                <br />
             </div>
 
             {
@@ -112,12 +133,17 @@ const TransactionStatus = (props) => {
                     <>
                         <div style={{ marginTop: "200px", marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
                             <CircularProgress color="success" />
+                            {countdown>0?(
+                                <p> Redirecting in {countdown} seconds</p>
+                            ):(
+                                <p>Redirecting</p>
+                            )}
                         </div>
                     </>
                 )
 
             }
-            <CustomBox style={{ display: "flex", justifyContent: "center", marginTop: "10%" }}>
+            {/* <div style={{ display: "flex", justifyContent: "center", marginTop: "10%" }}>
                 <Button
                     variant="contained"
                     size="large"
@@ -126,7 +152,7 @@ const TransactionStatus = (props) => {
                 >
                     Make Another Payment <ArrowForwardIcon sx={{ marginLeft: "10px" }} />
                 </Button>
-            </CustomBox>
+            </div> */}
         </div>
     );
 }
