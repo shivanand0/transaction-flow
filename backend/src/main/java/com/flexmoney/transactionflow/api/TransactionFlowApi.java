@@ -38,14 +38,13 @@ public class TransactionFlowApi {
                 return transactionFlowService.getDetails(uuid);
         }
 
-
-        @PostMapping("/twoFVerification/{verificationType}")
-        public ResponseEntity<TwoFVerificationResponse> OtpVerification(@PathVariable("verificationType") String verificationType , @RequestBody TwoFVerificationDTO twoFVerificationDTO){
-                return transactionFlowService.OtpVerification(verificationType, twoFVerificationDTO);
+        @PostMapping("/transaction/initiate")
+        public ResponseEntity<TransactionResponse> initiateTxn(@RequestBody TransactionDTO transactionDTO){
+                return transactionFlowService.InitiateTxn(transactionDTO);
         }
 
-        @PostMapping("/initTxn/{txnType}")
-        public ResponseEntity<TransactionResponse> initTransaction(@PathVariable("txnType") String txnType, @RequestBody TransactionDTO transactionDTO){
-                return transactionFlowService.InitTransaction(txnType, transactionDTO);
+        @PostMapping("/transaction/confirm")
+        public ResponseEntity<TransactionResponse> confirmTxn(@RequestBody TransactionDTO transactionDTO){
+                return transactionFlowService.ConfirmTxn(transactionDTO);
         }
 }

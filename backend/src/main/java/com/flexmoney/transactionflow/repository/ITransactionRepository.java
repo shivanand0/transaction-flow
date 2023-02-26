@@ -18,4 +18,8 @@ public interface ITransactionRepository extends JpaRepository<TransactionModel, 
     @Modifying
     @Query(value = "UPDATE TransactionModel t SET t.status=:status WHERE t.txnId = :id")
     void updateFieldsById(@Param("id") UUID id, @Param("status") String status);
+
+    @Modifying
+    @Query(value = "UPDATE TransactionModel t SET t.lenderInfoId=:lenderInfoId WHERE t.detailsId = :id")
+    void updateLenderInfoIdFieldByDetailsId(@Param("id") UUID id, @Param("lenderInfoId") Integer lenderInfoId);
 }

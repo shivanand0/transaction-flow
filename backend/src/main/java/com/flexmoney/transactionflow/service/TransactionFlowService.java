@@ -134,13 +134,13 @@ public class TransactionFlowService implements ITransactionFlowService {
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .status(false)
-                    .message("You're not approved by our lenders for this transaction")
+                    .message("Transaction Timeout")
                     .build(),
                     HttpStatus.BAD_REQUEST
             );
         }
 
-        boolean check2 = checkIfTxnExists(detailsId);
+        boolean check2 = checkIfTxnIsCompleted(detailsId);
         if(check2 == true){
             return new ResponseEntity<>(Details
                     .builder()
@@ -220,153 +220,127 @@ public class TransactionFlowService implements ITransactionFlowService {
 
     }
 
-
     @Override
-    public ResponseEntity<TwoFVerificationResponse> OtpVerification(String verificationType, TwoFVerificationDTO twoFVerificationDTO) {
-                UUID detailsId = twoFVerificationDTO.getDetailsId();
-                long receivedOtp = twoFVerificationDTO.getReceivedOtp();
-                boolean status;
-                long expectedMobileOtp = 1234;
-                String msg;
-                HttpStatus statusCode;
+    public ResponseEntity<TransactionResponse> InitiateTxn(TransactionDTO transactionDTO) {
+        UUID detailsId = transactionDTO.getDetailsId();
+        Long receivedOtp = transactionDTO.getOtp();
+        String statusStr = transactionDTO.getStatus();
+        String remark = transactionDTO.getRemark();
 
-                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-                long userId = essentialDetails.getUserId();
-                UserModel userModel = userRepository.findById(userId).get();
+        boolean status;
+        String msg;
+        HttpStatus statusCode;
 
-                if(verificationType.equals("PAN")){
-                        boolean check = checkTxnCountValues(detailsId, "panotp");
-                        if(check == false){
-                            msg = "PAN-OTP-EXCEED";
-                            statusCode = HttpStatus.BAD_REQUEST;
-                            status=false;
-                        }
-                        else {
-                            long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+        boolean check = checkTxnCountValues(detailsId, "panotp");
+        if (!check) {
+            // either block user for 24 hours
+            // or mark txn as fail
+            essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "PAN-OTP-EXCEED");
 
-                            if (receivedOtp == lastFourDigitsOfPan) {
-                                msg = "PAN Verification Successfull";
-                                statusCode = HttpStatus.ACCEPTED;
-                                status = true;
-                            } else {
-                                msg = "PAN Verification Failed";
-                                statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status = false;
-                            }
-                        }
-                } else if(verificationType.equals("MOBILE")){
-                        boolean check = checkTxnCountValues(detailsId, "mobileotp");
+            msg = "PAN-OTP-EXCEED";
+            statusCode = HttpStatus.BAD_REQUEST;
+            status=false;
+        }
+        else {
+            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+            long userId = essentialDetails.getUserId();
+            UserModel userModel = userRepository.findById(userId).get();
+            long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
 
-                        if(check == false){
-                            msg = "MOB-OTP-EXCEED";
-                            statusCode = HttpStatus.BAD_REQUEST;
-                            status=false;
-                        }
-                        else {
-                            if (receivedOtp == expectedMobileOtp) {
-                                msg = "Mobile Verification Successfull";
-                                statusCode = HttpStatus.ACCEPTED;
-                                status = true;
-                            } else {
-                                msg = "Mobile Verification Failed";
-                                statusCode = HttpStatus.EXPECTATION_FAILED;
-                                status = false;
-                            }
-                        }
-                } else{
-                        msg = "Bad Request";
-                        statusCode = HttpStatus.BAD_REQUEST;
-                        status=false;
+            if (receivedOtp == lastFourDigitsOfPan) {
+                // Initiate the txn
+                UUID trackId = essentialDetails.getTrackId();
+                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+
+                boolean checkTxnExists = checkIfTxnExists(detailsId);
+                if (checkTxnExists) {
+                    // here update the txn details
+                    transactionRepository.updateLenderInfoIdFieldByDetailsId(detailsId, lenderInfoId);
+                    essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
                 }
-                TwoFVerificationResponse twoFVerificationResponse = new TwoFVerificationResponse();
-                twoFVerificationResponse.setStatus(status);
-                twoFVerificationResponse.setStatusCode(statusCode.value());
-                twoFVerificationResponse.setMessage(msg);
-
-                return new ResponseEntity<>(twoFVerificationResponse, statusCode);
-
-    }
-
-        @Override
-        public ResponseEntity<TransactionResponse> InitTransaction(String txnType, TransactionDTO transactionDTO) {
-                UUID detailsId = transactionDTO.getDetailsId();
-                String status = transactionDTO.getStatus();
-                String remark = transactionDTO.getRemark();
-
-                boolean check = checkTxnCountValues(detailsId, "txncount");
-                if(check == false){
-                    TransactionResponse transactionResponse = new TransactionResponse();
-                    transactionResponse.setStatus(false);
-                    transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                    transactionResponse.setMessage("TIMEOUT");
-
-                    return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
-                }
-
-                if(txnType.equals("initiate")){
-                    boolean checkTxnExists = checkIfTxnExists(detailsId);
-                    if(checkTxnExists == true){
-                        TransactionResponse transactionResponse = new TransactionResponse();
-                        transactionResponse.setStatus(false);
-                        transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                        transactionResponse.setMessage("Transaction already initiated");
-
-                        return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
-                    }
-
-                    EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-
-                    long userId = essentialDetails.getUserId();
-                    UUID trackId = essentialDetails.getTrackId();
-
-                    TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-
-                    Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
-
+                else {
+                    // here add new entry
                     TransactionModel transaction = new TransactionModel();
                     transaction.setDetailsId(detailsId);
                     transaction.setUserId(userId);
                     transaction.setLenderInfoId(lenderInfoId);
-                    transaction.setStatus(status); // here status will be "initiate"
+                    transaction.setStatus(statusStr.toUpperCase()); // here status will be "initiate"
                     transactionRepository.save(transaction);
 
-                    essentialDetailsRepository.updateStatusRemarkById(detailsId, txnType, remark);
-                } else if(txnType.equals("confirm")){
-                    // here status will be SUCCESS / FAIL based on OTP verification
-                    boolean checkTxnExists = checkIfTxnExists(detailsId);
-                    if(checkTxnExists == false){
-                        TransactionResponse transactionResponse = new TransactionResponse();
-                        transactionResponse.setStatus(false);
-                        transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                        transactionResponse.setMessage("Transaction not initiated");
-
-                        return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
-                    }
-
-                    TransactionModel transaction = transactionRepository.findByDetailsId(detailsId);
-                    UUID txnId = transaction.getTxnId();
-                    transactionRepository.updateFieldsById(txnId, status);
-
-                    essentialDetailsRepository.updateStatusRemarkById(detailsId, txnType, status+" "+remark);
-
-                } else {
-                    TransactionResponse transactionResponse = new TransactionResponse();
-                    transactionResponse.setStatus(false);
-                    transactionResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
-                    transactionResponse.setMessage("URL not found");
-
-                    return new ResponseEntity<>(transactionResponse, HttpStatus.BAD_REQUEST);
+                    essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
                 }
 
-                TransactionResponse transactionResponse = new TransactionResponse();
-                transactionResponse.setStatus(true);
-                transactionResponse.setStatusCode(HttpStatus.CREATED.value());
-                transactionResponse.setMessage("Successful");
-
-                return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+                msg = "OTP Sent Successful";
+                statusCode = HttpStatus.CREATED;
+                status = true;
+            } else {
+                msg = "Invalid OTP";
+                statusCode = HttpStatus.BAD_REQUEST;
+                status = false;
+            }
         }
 
-        public boolean checkTxnCountValues(UUID detailsId, String checkFor){
+
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setStatus(status);
+        transactionResponse.setStatusCode(statusCode.value());
+        transactionResponse.setMessage(msg);
+
+        return new ResponseEntity<>(transactionResponse, statusCode);
+    }
+
+    @Override
+    public ResponseEntity<TransactionResponse> ConfirmTxn(TransactionDTO transactionDTO) {
+        UUID detailsId = transactionDTO.getDetailsId();
+        Long receivedOtp = transactionDTO.getOtp();
+        String statusStr = transactionDTO.getStatus();
+        String remark = transactionDTO.getRemark();
+        long expectedMobileOtp = 1234;
+
+        boolean status;
+        String msg;
+        HttpStatus statusCode;
+
+        TransactionModel transaction = transactionRepository.findByDetailsId(detailsId);
+        UUID txnId = transaction.getTxnId();
+
+        boolean check = checkTxnCountValues(detailsId, "mobileotp");
+        if (!check) {
+            // either block user for 24 hours
+            // or mark txn as fail
+            transactionRepository.updateFieldsById(txnId, "FAIL");
+            essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "MOB-OTP-EXCEED");
+            msg = "MOB-OTP-EXCEED";
+            statusCode = HttpStatus.BAD_REQUEST;
+            status=false;
+        }
+        else {
+            if (receivedOtp == expectedMobileOtp) {
+
+                transactionRepository.updateFieldsById(txnId, "SUCCESS");
+
+                msg = "Success";
+                statusCode = HttpStatus.ACCEPTED;
+                status = true;
+
+                essentialDetailsRepository.updateStatusRemarkById(detailsId, "SUCCESS", status+" "+remark);
+            } else {
+                msg = "Invalid OTP";
+                statusCode = HttpStatus.BAD_REQUEST;
+                status = false;
+            }
+        }
+
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setStatus(status);
+        transactionResponse.setStatusCode(statusCode.value());
+        transactionResponse.setMessage(msg);
+
+        return new ResponseEntity<>(transactionResponse, statusCode);
+    }
+
+    public boolean checkTxnCountValues(UUID detailsId, String checkFor){
             // checkFor : txncount, panotp, mobileotp
             EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
             boolean status=true;
@@ -432,6 +406,26 @@ public class TransactionFlowService implements ITransactionFlowService {
                 status = true;
             }
 
+            return status;
+        }
+
+        public boolean checkIfTxnIsCompleted(UUID detailsId) {
+            boolean status = false;
+            TransactionModel transactionModel = transactionRepository.findByDetailsId(detailsId);
+            if(transactionModel != null) {
+                String txnStatus = transactionModel.getStatus();
+                if (txnStatus.equalsIgnoreCase("SUCCESS") || txnStatus.equalsIgnoreCase("FAIL")) {
+                    status = true;
+                }
+            }
+
+            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+            String detailsStatus = essentialDetails.getStatus();
+            if(detailsStatus != null) {
+                if (detailsStatus.equalsIgnoreCase("SUCCESS") || detailsStatus.equalsIgnoreCase("FAIL")) {
+                    status = true;
+                }
+            }
             return status;
         }
 }

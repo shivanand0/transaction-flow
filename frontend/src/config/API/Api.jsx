@@ -88,3 +88,40 @@ export const InitTxn = async (status, detailsId, remark, stage) => {
     return res;
 }
 
+export const InitiateTransaction = async (status, detailsId, remark, otp) => {
+    // stage: initiate or confirm
+    const data = {
+        "detailsId": detailsId,
+        "status": status,
+        "remark": remark,
+        "otp": otp
+    }
+    const res = await Axios.post(
+        `${API_URL}/transaction/initiate`,
+        data
+    ).catch((err) => {
+        if(err.response.data.statusCode === 400 || err.response.data.statusCode === 500){
+            return err.response;
+        }
+    })
+    return res;
+}
+
+export const ConfirmTransaction = async (status, detailsId, remark, otp) => {
+    // stage: initiate or confirm
+    const data = {
+        "detailsId": detailsId,
+        "status": status,
+        "remark": remark,
+        "otp": otp
+    }
+    const res = await Axios.post(
+        `${API_URL}/transaction/confirm`,
+        data
+    ).catch((err) => {
+        if(err.response.data.statusCode === 400 || err.response.data.statusCode === 500){
+            return err.response;
+        }
+    })
+    return res;
+}
