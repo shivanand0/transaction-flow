@@ -9,7 +9,7 @@ function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount
     
     return (
         <>
-            <CustomBox>
+            <CustomBox sx={{marginBottom:"-50px"}}>
                 <Grid
                     container
                     spacing={2}
@@ -29,17 +29,17 @@ function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount
                         />
                     </Grid>
 
-                    <Grid item xs={2}>
+                    <Grid item xs={2} sx={{fontSize:"20px"}}>
                         <h4>{loanDuration}</h4>
                         <small>months</small>
                     </Grid>
 
-                    <Grid item xs sx={{ marginLeft: "10px", alignContent: "center" }}>
+                    <Grid item xs sx={{ marginLeft: "10px", alignContent: "center",fontSize:"20px" }}>
                         <h4><b> <CurrencyRupeeIcon sx={{ fontSize: "12px" }} /></b> {monthlyInstallment} </h4>
                         <small>/month</small>
 
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={4} sx={{fontSize:"20px"}}>
                         <h4><b> <CurrencyRupeeIcon sx={{ fontSize: "12px" }} /></b> {loanAmount + totalInterest} </h4>
                         <small> Total @{interestRate}% p.a.</small>
                     </Grid>

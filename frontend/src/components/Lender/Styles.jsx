@@ -16,3 +16,13 @@ export const CustomBox = styled(Box)(({ theme }) => ({
     marginTop: "8%"
     },
 }));
+
+export const CustomBox2 = styled(Box)(({ theme }) => ({
+    maxWidth: 500,
+    margin: "auto",
+    marginTop: "3%",
+    [theme.breakpoints.down("sm")]: {
+        width: "90%",
+        marginTop: "8%"
+    },
+}));

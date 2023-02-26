@@ -22,6 +22,22 @@ const Navbar = ({ isHome, goBackUri }) => {
             <CustomBox
                 sx={{ display: "flex", justifyContent: "flex-end", marginLeft:"-240px"}}
             >
+                {
+                    !isHome && (
+                        <CustomBox
+                            sx={{
+                                display: "flex",
+                                marginLeft: "800px",
+                                justifyContent: "flex-start",
+                                padding: "0 0 10px 10px",
+                                top: "130px"
+                            }}
+                            onClick={goBack}
+                        >
+                            <ArrowBackIcon /> Back
+                        </CustomBox>
+                    )
+                }
                 <img src={PoweredBySVG} alt="Your SVG" width="150" />
             </CustomBox>
             <CustomAppbar>
@@ -51,22 +67,6 @@ const Navbar = ({ isHome, goBackUri }) => {
                     </Toolbar>
                 </Container>
             </CustomAppbar>
-            {
-                !isHome && (
-                    <CustomBox
-                        sx={{
-                            display: "flex",
-                            marginLeft: "600px",
-                            justifyContent: "flex-start",
-                            padding: "0 0 10px 10px",
-                            top: "130px"
-                        }}
-                        onClick={goBack}
-                    >
-                    <ArrowBackIcon /> Back
-                </CustomBox>
-                )
-            }
             
         </>
     )

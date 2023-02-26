@@ -10,6 +10,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { TrackStage } from '../../config/API/Api.jsx';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
+import {CustomBox2} from "../../components/Lender/Styles.jsx";
 
 const TenureSelection = () => {
     const navigate = useNavigate();
@@ -63,10 +64,10 @@ const TenureSelection = () => {
     return (
         <>
             <Navbar isHome={false} goBackUri={`/transaction/lender-selection/${detailsId}`} />
-            <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
-                <h3>Select EMI</h3>
+            <CustomBox2 sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
+                <p style={{ fontSize: "25px" ,fontWeight:"bold",borderBottom:"2px solid black"}}>Select EMI</p>
                 {/*<small>Choose the EMI tenure that is best for you</small>*/}
-            </CustomBox>
+            </CustomBox2>
             {
                 lenderDetails && lenderDetailsList?.map((emiDetails) => {
                     return (
@@ -85,9 +86,9 @@ const TenureSelection = () => {
                     )
                 })
             }
-            <CustomBox
+            <CustomBox2
                 sx={{
-                    marginTop: "3%",
+                    marginTop: "150px",
                     display: "flex",
                     justifyContent: "center",
                 }}
@@ -117,7 +118,7 @@ const TenureSelection = () => {
 
                 }
 
-            </CustomBox>
+            </CustomBox2>
         </>
     );
 }
