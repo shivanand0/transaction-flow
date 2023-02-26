@@ -4,12 +4,11 @@ import Grid from "@mui/material/Grid";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee.js";
 import Radio from '@mui/material/Radio';
 
-
 function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount, totalInterest, lenderInfoId, onChangeOption, checkChecked, selectedLenderInfoId }) {
     
     return (
         <>
-            <CustomBox sx={{marginBottom:"-50px"}}>
+            <CustomBox>
                 <Grid
                     container
                     spacing={2}
@@ -19,7 +18,7 @@ function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount
                         cursor: "pointer"
                     }}
                 >
-                    <Grid item>
+                    <Grid item xs={1.5}>
                         <Radio
                             checked={checkChecked}
                             onChange={onChangeOption}
@@ -39,7 +38,7 @@ function TenureInfo({ loanDuration, interestRate, monthlyInstallment, loanAmount
                         <small>/month</small>
 
                     </Grid>
-                    <Grid item xs={4} sx={{fontSize:"20px"}}>
+                    <Grid item xs={5} sx={{fontSize:"20px"}}>
                         <h4><b> <CurrencyRupeeIcon sx={{ fontSize: "12px" }} /></b> {loanAmount + totalInterest} </h4>
                         <small> Total @{interestRate}% p.a.</small>
                     </Grid>

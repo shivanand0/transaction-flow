@@ -52,7 +52,7 @@ const TransactionStatus = (props) => {
     })
     let status = false;
     if (txnStatus === "success") {
- 
+
         status = true
     } else if (txnStatus === "failure") {
         status = false;
@@ -80,19 +80,19 @@ const TransactionStatus = (props) => {
 
     const [countdown, setCountdown] = useState(3);
 
-    useEffect(()=>{
-        const intervalId = setInterval(()=>{
-            setCountdown(countdown-1);
-        },1000); 
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCountdown(countdown - 1);
+        }, 3000);
 
-        return ()=>clearInterval(intervalId);
-    },[countdown]);
+        return () => clearInterval(intervalId);
+    }, [countdown]);
 
-    useEffect(()=>{
-        if(countdown===0){
-           return navigate('/transaction/complete');
+    useEffect(() => {
+        if (countdown === 0) {
+            return navigate('/transaction/complete');
         }
-    },[countdown]);
+    }, [countdown]);
 
     return (
 
@@ -117,7 +117,7 @@ const TransactionStatus = (props) => {
             }}>
                 <h3>Payment {status ? "Successful" : "Failed"}</h3>
                 <br />
-                <p>We've sent a confirmation message on your mobile number {user.mobile} </p>
+                <p>In case of any issues please write us at info@company.com</p>
                 <br />
                 <br />
             </div>
@@ -125,21 +125,18 @@ const TransactionStatus = (props) => {
             {
                 status && <CheckStatus txnDetails={txnDetails} />
             }
-            {
-                status && (
-                    <>
-                        <div style={{ marginTop: "200px", marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
-                            <CircularProgress color="success" />
-                            {countdown>0?(
-                                <p> Redirecting in {countdown} seconds</p>
-                            ):(
-                                <p>Redirecting</p>
-                            )}
-                        </div>
-                    </>
-                )
 
-            }
+
+            <div style={{ marginTop: "200px", marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
+                <CircularProgress color="success" />
+                {countdown > 0 ? (
+                    <p> Redirecting in {countdown} seconds</p>
+                ) : (
+                    <p>Redirecting</p>
+                )}
+            </div>
+
+
             {/* <div style={{ display: "flex", justifyContent: "center", marginTop: "10%" }}>
                 <Button
                     variant="contained"

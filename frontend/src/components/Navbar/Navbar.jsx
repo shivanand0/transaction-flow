@@ -11,45 +11,43 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CustomBox } from './Styles';
 import { AppState } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
+import ReactSVG from '../../assets/react.svg';
 
-const Navbar = ({ isHome, goBackUri }) => {
+const Navbar = ({ isHome, goBackUri, isTenurePage }) => {
     const navigate = useNavigate();
     const goBack = () => navigate(goBackUri);
-    const { user } = AppState();
+    const { user, lenderDetails, trackStageValues } = AppState();
 
+    const lenderInfo = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1] : null
+    console.log("lenderInfo ", lenderInfo)
     return (
         <>
             <CustomBox
-                sx={{ display: "flex", justifyContent: "flex-end", marginLeft:"-240px"}}
+                sx={{ display: "flex", justifyContent: "space-between", maxWidth: "400px" }}
             >
                 {
                     !isHome && (
-                        <CustomBox
-                            sx={{
-                                display: "flex",
-                                marginLeft: "800px",
-                                justifyContent: "flex-start",
-                                padding: "0 0 10px 10px",
-                                top: "130px"
-                            }}
+                        <Button
+                            startIcon={<ArrowBackIcon />}
                             onClick={goBack}
+                            variant="text"
+                            sx={{ color: "#000" }}
                         >
-                            <ArrowBackIcon /> Back
-                        </CustomBox>
+                            Back
+                        </Button>
                     )
                 }
                 <img src={PoweredBySVG} alt="Your SVG" width="150" />
             </CustomBox>
-            <CustomAppbar>
 
+            <CustomAppbar>
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <PhoneAndroidIcon sx={{ mr: 1 }} />
                         <Typography
                             noWrap
                             sx={{
-                                // mr: 2,
-                                //   display: { xs: 'none', md: 'flex' },
                                 fontFamily: 'monospace',
                                 color: 'inherit',
                                 textDecoration: 'none',
@@ -65,9 +63,19 @@ const Navbar = ({ isHome, goBackUri }) => {
                             AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{!isHome && user.amount}</strong>
                         </Box>
                     </Toolbar>
+                    {
+                        isTenurePage && 
+                        <Toolbar disableGutters sx={{marginTop: "-20px", display: "flex", justifyContent: "space-between", borderTop: "1px solid #9999"  }}> 
+                        <img src={lenderInfo.secondaryLogoUrl} width="100px" alt="" />
+                        <Box>
+                            <strong>{lenderInfo.lenderName}</strong>
+                        </Box>
+                    </Toolbar>
+                    }
+                    
                 </Container>
             </CustomAppbar>
-            
+
         </>
     )
 }
