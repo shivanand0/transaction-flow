@@ -78,12 +78,12 @@ const TransactionStatus = (props) => {
 
     const img = status ? "https://img.icons8.com/color/96/null/checked--v1.png" : "https://img.icons8.com/color/96/null/cancel--v1.png";
 
-    const [countdown, setCountdown] = useState(3);
+    const [countdown, setCountdown] = useState(5);
 
     useEffect(()=>{
         const intervalId = setInterval(()=>{
             setCountdown(countdown-1);
-        },1000); 
+        },5000); 
 
         return ()=>clearInterval(intervalId);
     },[countdown]);

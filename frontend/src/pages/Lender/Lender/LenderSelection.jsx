@@ -7,7 +7,7 @@ import { CustomBox } from '../../../components/Lender/Styles.jsx';
 import { AppState } from '../../../context/AppContext';
 import { GetLenderDetails, TrackStage } from '../../../config/API/Api';
 import LinearProgress from '@mui/material/LinearProgress';
-import {CustomBox2} from "../../../components/Lender/Styles.jsx";
+import { CustomBox2 } from "../../../components/Lender/Styles.jsx";
 
 const LenderSelection = () => {
     const navigate = useNavigate();
@@ -76,7 +76,7 @@ const LenderSelection = () => {
     }, [trackStageValues])
 
     const fetchedLenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
-    
+
     const handleSelectLenderId = (lenderId) => {
         setTrackStageValues({
             selection: "LENDER_SELECTION",
@@ -84,19 +84,17 @@ const LenderSelection = () => {
             selectedLenderInfoId: null
         })
     }
-    
+
     return (
         <>
             <Navbar isHome={false} goBackUri={`/`} />
-            {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" ,marginTop:"30px"}} />}
-            <CustomBox2 sx={{marginTop: "30px", marginBottom: "-80px", display: "flex", justifyContent: "center" , backgroundColor:'Transparent'}}>
-                <p style={{ fontSize: "25px" ,fontWeight:"bold",borderBottom:"2px solid black"}}>Select a Lender</p>
-            </CustomBox2>
+            {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E", marginTop: "30px" }} />}
 
-            <CustomBox2 sx={{marginTop: "100px", marginBottom: "-120px", display: "flex", justifyContent: "center" ,color:"#808080",textAlign:"center"}}>
-                <p style={{ fontSize: 15 ,fontWeight:"bold"}}>You have been pre-approved by the following lenders. Select one to continue with the transaction.</p>
+            <CustomBox2>
+                <div style={{ display: "flex", justifyContent: "center", fontSize: "26px", fontWeight: "bold", textDecoration: "underline" }}>Select Lender</div>
+                <p style={{ display: "flex", justifyContent: "center", textAlign: "center", fontSize: "15px", fontWeight: "bold", color: "#808080", padding: "10px" }}>You have been pre-approved by the following lenders. Select one to continue with the transaction.</p>
             </CustomBox2>
-
+            <div style={{ scrollBehavior: "scroll", marginBottom: "10px" }} >
             {
                 fetchedLenderDetailsList?.map((lender) => {
                     const data = lender.emiDetailsList[0]
@@ -114,7 +112,7 @@ const LenderSelection = () => {
                     )
                 })
             }
-
+            </div>
         </>
     )
 }

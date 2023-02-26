@@ -11,6 +11,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CustomBox } from './Styles';
 import { AppState } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 
 const Navbar = ({ isHome, goBackUri }) => {
     const navigate = useNavigate();
@@ -20,28 +21,24 @@ const Navbar = ({ isHome, goBackUri }) => {
     return (
         <>
             <CustomBox
-                sx={{ display: "flex", justifyContent: "flex-end", marginLeft:"-240px"}}
+                sx={{ display: "flex", justifyContent: "space-between", maxWidth: "400px" }}
             >
                 {
                     !isHome && (
-                        <CustomBox
-                            sx={{
-                                display: "flex",
-                                marginLeft: "800px",
-                                justifyContent: "flex-start",
-                                padding: "0 0 10px 10px",
-                                top: "130px"
-                            }}
+                        <Button
+                            startIcon={<ArrowBackIcon />}
                             onClick={goBack}
+                            variant="text"
+                            sx={{ color: "#000" }}
                         >
-                            <ArrowBackIcon /> Back
-                        </CustomBox>
+                            Back
+                        </Button>
                     )
                 }
                 <img src={PoweredBySVG} alt="Your SVG" width="150" />
             </CustomBox>
-            <CustomAppbar>
 
+            <CustomAppbar>
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <PhoneAndroidIcon sx={{ mr: 1 }} />
@@ -67,7 +64,7 @@ const Navbar = ({ isHome, goBackUri }) => {
                     </Toolbar>
                 </Container>
             </CustomAppbar>
-            
+
         </>
     )
 }
