@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class TransactionDTO {
     private UUID detailsId;
+    private Long otp;
     private String status;
-
     private String remark;
 }

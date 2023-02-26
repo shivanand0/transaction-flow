@@ -4,10 +4,10 @@ import { CustomBox } from "../../components/Lender/Styles";
 import { LinearProgress, TextField } from "@mui/material";
 import { Button, Card, CardContent } from '@mui/material';
 import { AppState } from '../../context/AppContext';
-import { GetLenderDetails, InitTxn, TrackStage, VerifyNumber } from '../../config/API/Api';
+import { InitiateTransaction, ConfirmTransaction } from '../../config/API/Api';
 import ConfirmationNavbar from '../../components/Navbar/ConfirmationNavbar';
 import { useNavigate, redirect } from 'react-router-dom';
-import {CustomBox2} from "../../components/Lender/Styles";
+import { CustomBox2 } from "../../components/Lender/Styles";
 const TwoFAuthentication = () => {
   const navigate = useNavigate();
   const { detailsId } = useParams();
@@ -61,6 +61,7 @@ const TwoFAuthentication = () => {
       setValidOtpInput(false);
     }
   }
+
   const handlePanSubmit = async (e) => {
     e.preventDefault();
     if (!panNumber) {
@@ -74,22 +75,21 @@ const TwoFAuthentication = () => {
 
     try {
       setLoading(true)
-      const result = await VerifyNumber(panNumber, detailsId, "PAN");
+      const result = await InitiateTransaction("INITIATE", detailsId, "initiate", panNumber);
       setLoading(false)
 
       if (result.data.status === true) {
         handleShowCard2();
         setValidInput(false);
         setFormSubmitted(true);
-
-        // initiate the transaction /initTxn/initiate
-        InitTxnFunc("INITIATE", result.data.message, "initiate")
       } else {
         let errMsg1 = "";
         if (result.data.message === "PAN-OTP-EXCEED") {
-          // init fail txn
-          InitTxnFunc("FAIL", result.data.message, "initiate")
-          errMsg1 = "PAN Verification Failed"
+          errMsg1 = "Transaction Failed... OTP limit exceed"
+          setTransactionStatus("FAIL")
+
+          // redirect to txnStatus page
+          navigate(`/transaction/payment/failure`)
         } else {
           errMsg1 = result.data.message
         }
@@ -99,8 +99,6 @@ const TwoFAuthentication = () => {
           message: errMsg1,
           type: "error",
         });
-
-
       }
     } catch (error) {
       setAlert({
@@ -126,20 +124,20 @@ const TwoFAuthentication = () => {
 
     try {
       setLoading(true)
-      const result = await VerifyNumber(otpNumber, detailsId, "MOBILE");
+      const result = await ConfirmTransaction("CONFIRM", detailsId, "confirm", otpNumber);
       setLoading(false)
 
       if (result.data.status === true) {
         setOtpFormSubmitted(true);
-
-        // confirm success txn
-        InitTxnFunc("SUCCESS", result.data.message, "confirm")
+        setTransactionStatus("SUCCESS")
+        return navigate(`/transaction/payment/success`)
       } else {
         let errMsg2 = "";
         if (result.data.message === "MOB-OTP-EXCEED") {
-          // confirm fail txn
-          InitTxnFunc("FAIL", result.data.message, "confirm")
-          errMsg2 = "Mobile Verification Failed"
+          errMsg2 = "Transaction Failed... OTP limit exceed"
+          // redirect to txsStatus page
+          setTransactionStatus("FAIL")
+          navigate(`/transaction/payment/failure`)
         } else {
           errMsg2 = result.data.message
         }
@@ -160,39 +158,6 @@ const TwoFAuthentication = () => {
     }
   }
 
-  const InitTxnFunc = async (status, remark, stage) => {
-    try {
-      setLoading(true)
-      // status, detailsId, remark, stage
-      const result = await InitTxn(status, detailsId, remark, stage);
-      setLoading(false)
-
-      if (result.data.statusCode === 201) {
-        
-        if (status === "SUCCESS") {
-          setTransactionStatus("SUCCESS")
-          return navigate(`/transaction/payment/success`)
-        }
-        else if (status === "FAIL") {
-          setTransactionStatus("FAIL")
-          return navigate(`/transaction/payment/failure`)}
-
-      } else {
-        setAlert({
-          open: true,
-          message: result.data.message,
-          type: "error",
-        });
-      }
-    } catch (error) {
-      setAlert({
-        open: true,
-        message: error.message,
-        type: "error",
-      });
-      return;
-    }
-  }
   return (
     <>
       <ConfirmationNavbar goBackUri={`/transaction/lender-selection/${detailsId}`} detailsId={detailsId} />

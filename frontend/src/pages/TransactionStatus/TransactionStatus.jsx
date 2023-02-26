@@ -6,9 +6,6 @@ import Grid from "@mui/material/Grid";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee.js";
 import PoweredBySVG from "../../assets/inline-powered-by.svg";
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Navigate} from 'react-router-dom';
 
 const CheckStatus = ({ txnDetails }) => {
     return (
