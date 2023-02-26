@@ -375,10 +375,10 @@ public class TransactionFlowService implements ITransactionFlowService {
                         if(difference_In_Minutes > 10) {
                             status = false;
                             remark = "transaction timeout";
+                        } else {
+                            status=true;
+                            remark="success";
                         }
-
-                        status=true;
-                        remark="success";
                     }
                     else if(checkFor == "panotp") {
                         ++PanOTPCount;
