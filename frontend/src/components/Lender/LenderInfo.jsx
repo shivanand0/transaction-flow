@@ -14,17 +14,18 @@ const LenderInfo = ({ img, bankName, emiStarting, onClickLender,onClickArrow }) 
                     sx={{
                         gap: "10px",
                         padding: "10px",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        display:"flex", flexDirection:"row", justifyContent:"center", alignItems:"center"
                     }}
                 >
                     <Grid item xs={2}>
                         <img src={img} width="60" alt="" />
                     </Grid>
                     <Grid item xs>
-                        <h4>{bankName}</h4>
-                        <small>EMI starting <b>@<CurrencyRupeeIcon sx={{ fontSize: "12px" }} />{emiStarting}</b></small>
+                        <p style={{ fontSize: "22px" ,fontWeight:"bold"}}>{bankName}</p>
+                        <small style={{ fontSize: 15 }}>EMI starting <b>@<CurrencyRupeeIcon sx={{ fontSize: "12px" }} />{emiStarting}</b></small>
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={2}  >
                         <ArrowForwardIosIcon sx={{ color: "#4DBE0E" }} onClick={onClickArrow} />
                     </Grid>
                 </Grid>

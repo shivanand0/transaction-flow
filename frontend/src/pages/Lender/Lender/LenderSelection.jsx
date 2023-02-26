@@ -7,6 +7,7 @@ import { CustomBox } from '../../../components/Lender/Styles.jsx';
 import { AppState } from '../../../context/AppContext';
 import { GetLenderDetails, TrackStage } from '../../../config/API/Api';
 import LinearProgress from '@mui/material/LinearProgress';
+import {CustomBox2} from "../../../components/Lender/Styles.jsx";
 
 const LenderSelection = () => {
     const navigate = useNavigate();
@@ -87,11 +88,14 @@ const LenderSelection = () => {
     return (
         <>
             <Navbar isHome={false} goBackUri={`/`} />
-            {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
-            <CustomBox sx={{marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
-                <h3>Select Lender</h3>
+            {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" ,marginTop:"30px"}} />}
+            <CustomBox2 sx={{marginTop: "30px", marginBottom: "-80px", display: "flex", justifyContent: "center" , backgroundColor:'Transparent'}}>
+                <p style={{ fontSize: "25px" ,fontWeight:"bold",borderBottom:"2px solid black"}}>Select a Lender</p>
+            </CustomBox2>
 
-            </CustomBox>
+            <CustomBox2 sx={{marginTop: "100px", marginBottom: "-120px", display: "flex", justifyContent: "center" ,color:"#808080",textAlign:"center"}}>
+                <p style={{ fontSize: 15 ,fontWeight:"bold"}}>You have been pre-approved by the following lenders. Select one to continue with the transaction.</p>
+            </CustomBox2>
 
             {
                 fetchedLenderDetailsList?.map((lender) => {

@@ -7,7 +7,7 @@ import { AppState } from '../../context/AppContext';
 import { GetLenderDetails, InitTxn, TrackStage, VerifyNumber } from '../../config/API/Api';
 import ConfirmationNavbar from '../../components/Navbar/ConfirmationNavbar';
 import { useNavigate, redirect } from 'react-router-dom';
-
+import {CustomBox2} from "../../components/Lender/Styles";
 const TwoFAuthentication = () => {
   const navigate = useNavigate();
   const { detailsId } = useParams();
@@ -198,10 +198,10 @@ const TwoFAuthentication = () => {
       <ConfirmationNavbar goBackUri={`/transaction/lender-selection/${detailsId}`} detailsId={detailsId} />
 
       {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
-      <CustomBox sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center", marginTop: "20px" }}>
+      <CustomBox2 sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <h2>Transaction Confirmation</h2>
 
-      </CustomBox>
+      </CustomBox2>
       <div className="card-container" style={{ display: 'flex', justifyContent: 'center', marginTop: 165 }}>
         {showCard1 &&
           <Card className="card" style={{ width: "500px" }}>
