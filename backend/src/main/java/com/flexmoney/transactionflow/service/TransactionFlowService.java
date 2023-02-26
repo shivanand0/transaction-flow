@@ -9,11 +9,15 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
+        private static final Pattern regexp = Pattern.compile("^[6-9][0-9]{9}$");
         @Autowired
         private IUserRepository userRepository;
+
         @Autowired
         private ITrackStageRepository trackStageRepository;
 
@@ -32,8 +36,12 @@ public class TransactionFlowService implements ITransactionFlowService {
     private IEssentialDetailsRepository essentialDetailsRepository;
 
     @Override
-    public ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws CreditLimitException {
+    public ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception {
 
+        Matcher matcher =  regexp.matcher(userDTO.getMobileNumber());
+        if (!matcher.find()) {
+           throw new Exception("Please enter a valid mobile number");
+        }
         UserModel userModel = userRepository.findByMobileNumber(userDTO.getMobileNumber());
 
         if (userModel == null) {
