@@ -12,12 +12,15 @@ import { CustomBox } from './Styles';
 import { AppState } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
+import ReactSVG from '../../assets/react.svg';
 
-const Navbar = ({ isHome, goBackUri }) => {
+const Navbar = ({ isHome, goBackUri, isTenurePage }) => {
     const navigate = useNavigate();
     const goBack = () => navigate(goBackUri);
-    const { user } = AppState();
+    const { user, lenderDetails, trackStageValues } = AppState();
 
+    const lenderInfo = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1] : null
+    console.log("lenderInfo ", lenderInfo)
     return (
         <>
             <CustomBox
@@ -45,8 +48,6 @@ const Navbar = ({ isHome, goBackUri }) => {
                         <Typography
                             noWrap
                             sx={{
-                                // mr: 2,
-                                //   display: { xs: 'none', md: 'flex' },
                                 fontFamily: 'monospace',
                                 color: 'inherit',
                                 textDecoration: 'none',
@@ -62,6 +63,16 @@ const Navbar = ({ isHome, goBackUri }) => {
                             AMOUNT : <CurrencyRupeeIcon sx={{ fontSize: "13px" }} /><strong>{!isHome && user.amount}</strong>
                         </Box>
                     </Toolbar>
+                    {
+                        isTenurePage && 
+                        <Toolbar disableGutters sx={{marginTop: "-20px", display: "flex", justifyContent: "space-between", borderTop: "1px solid #9999"  }}> 
+                        <img src={lenderInfo.secondaryLogoUrl} width="100px" alt="" />
+                        <Box>
+                            <strong>{lenderInfo.lenderName}</strong>
+                        </Box>
+                    </Toolbar>
+                    }
+                    
                 </Container>
             </CustomAppbar>
 

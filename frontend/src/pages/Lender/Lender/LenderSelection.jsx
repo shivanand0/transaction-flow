@@ -48,7 +48,7 @@ const LenderSelection = () => {
         }
     }
 
-    const handleLenderOnclick = async () => {
+    const callTrackStage = async () => {
         try {
             const result = await TrackStage(trackStageValues.selection, trackStageValues.selectedLenderId, trackStageValues.selectedLenderInfoId, detailsId)
         } catch (error) {
@@ -63,7 +63,7 @@ const LenderSelection = () => {
 
     const handleArrowOnClick = (lenderId) => {
         handleSelectLenderId(lenderId)
-        handleLenderOnclick()
+        callTrackStage()
         return navigate(`/transaction/tenure-selection/${detailsId}`)
     }
 
@@ -72,7 +72,7 @@ const LenderSelection = () => {
     }, [detailsId])
 
     useEffect(() => {
-        handleLenderOnclick();
+        callTrackStage();
     }, [trackStageValues])
 
     const fetchedLenderDetailsList = lenderDetails !== null ? lenderDetails.data.lenderDetailsList : null
@@ -105,7 +105,6 @@ const LenderSelection = () => {
                             bankName={lender.lenderName}
                             emiStarting={str}
                             key={lender.lenderId}
-                            onClickLender={() => handleSelectLenderId(lender.lenderId)}
                             onClickArrow={() => handleArrowOnClick(lender.lenderId)}
                         />
 

@@ -10,7 +10,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { TrackStage } from '../../config/API/Api.jsx';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
-import {CustomBox2} from "../../components/Lender/Styles.jsx";
+import { CustomBox2 } from "../../components/Lender/Styles.jsx";
 
 const TenureSelection = () => {
     const navigate = useNavigate();
@@ -63,34 +63,37 @@ const TenureSelection = () => {
 
     return (
         <>
-            <Navbar isHome={false} goBackUri={`/transaction/lender-selection/${detailsId}`} />
-            <CustomBox2 sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center" }}>
-                <p style={{ fontSize: "25px" ,fontWeight:"bold",borderBottom:"2px solid black"}}>Select EMI</p>
-                {/*<small>Choose the EMI tenure that is best for you</small>*/}
+            <Navbar isHome={false} goBackUri={`/transaction/lender-selection/${detailsId}`} isTenurePage={true} />
+            <CustomBox2>
+                <div style={{ display: "flex", justifyContent: "center", fontSize: "26px", fontWeight: "bold", textDecoration: "underline" }}>Select EMI</div>
+                <p style={{ display: "flex", justifyContent: "center", textAlign: "center", fontSize: "15px", fontWeight: "bold", color: "#808080", padding: "10px" }}>Choose the EMI tenure that is best for you.</p>
             </CustomBox2>
-            {
-                lenderDetails && lenderDetailsList?.map((emiDetails) => {
-                    return (
-                        <TenureInfo
-                            key={emiDetails.lenderInfoId}
-                            loanDuration={emiDetails.loanDuration}
-                            interestRate={emiDetails.interestRate}
-                            monthlyInstallment={emiDetails.monthlyInstallment}
-                            loanAmount={emiDetails.loanAmount}
-                            totalInterest={emiDetails.totalInterest}
-                            onChangeOption={() => handleSelectedTenureChange(emiDetails.lenderInfoId)}
-                            checkChecked={selectedOption === emiDetails.lenderInfoId}
-                            lenderInfoId={emiDetails.lenderInfoId}
-                            selectedLenderInfoId={selectedOption}
-                        />
-                    )
-                })
-            }
+
+            <div style={{ scrollBehavior: "scroll", marginBottom: "10px" }} >
+                {
+                    lenderDetails && lenderDetailsList?.map((emiDetails) => {
+                        return (
+                            <TenureInfo
+                                key={emiDetails.lenderInfoId}
+                                loanDuration={emiDetails.loanDuration}
+                                interestRate={emiDetails.interestRate}
+                                monthlyInstallment={emiDetails.monthlyInstallment}
+                                loanAmount={emiDetails.loanAmount}
+                                totalInterest={emiDetails.totalInterest}
+                                onChangeOption={() => handleSelectedTenureChange(emiDetails.lenderInfoId)}
+                                checkChecked={selectedOption === emiDetails.lenderInfoId}
+                                lenderInfoId={emiDetails.lenderInfoId}
+                                selectedLenderInfoId={selectedOption}
+                            />
+                        )
+                    })
+                }
+            </div>
             <CustomBox2
                 sx={{
-                    marginTop: "150px",
                     display: "flex",
                     justifyContent: "center",
+                    marginBottom: "50px"
                 }}
             >
                 {

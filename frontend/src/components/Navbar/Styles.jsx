@@ -1,7 +1,6 @@
 import { AppBar, styled, Box } from "@mui/material";
 export const CustomAppbar = styled(AppBar)(({ theme }) => ({
     position: "sticky",
-    margin: "10px",
     top: "60px",
     backgroundColor: "#fff",
     color: "#000",
