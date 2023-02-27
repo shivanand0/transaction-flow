@@ -17,6 +17,9 @@ const TwoFAuthentication = () => {
     if (lenderDetails === null) {
       return navigate(`/transaction/lender-selection/${detailsId}`)
     }
+    if(transactionStatus === "FAIL" || transactionStatus === "SUCCESS"){
+      return navigate(`/`)
+    }
   }, [])
 
 

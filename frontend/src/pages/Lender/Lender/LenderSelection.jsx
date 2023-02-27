@@ -49,7 +49,6 @@ const LenderSelection = () => {
     }
 
     const callTrackStage = async (lenderId) => {
-        console.log("trackStageValues ",trackStageValues, lenderId)
         try {
             const result = await TrackStage(trackStageValues.selection, lenderId, trackStageValues.selectedLenderInfoId, detailsId)
         } catch (error) {

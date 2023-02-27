@@ -231,53 +231,59 @@ public class TransactionFlowService implements ITransactionFlowService {
         String msg;
         HttpStatus statusCode;
 
-        boolean check = checkTxnCountValues(detailsId, "panotp");
-        if (!check) {
-            // either block user for 24 hours
-            // or mark txn as fail
-            essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "PAN-OTP-EXCEED");
-
-            msg = "PAN-OTP-EXCEED";
+        boolean check2 = checkIfTxnIsCompleted(detailsId);
+        if (check2 == true) {
+            msg = "Transaction Completed Already!";
             statusCode = HttpStatus.BAD_REQUEST;
             status=false;
         }
         else {
-            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-            long userId = essentialDetails.getUserId();
-            UserModel userModel = userRepository.findById(userId).get();
-            long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+            boolean check = checkTxnCountValues(detailsId, "panotp");
+            if (!check) {
+                // either block user for 24 hours
+                // or mark txn as fail
+                essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "PAN-OTP-EXCEED");
 
-            if (receivedOtp == lastFourDigitsOfPan) {
-                // Initiate the txn
-                UUID trackId = essentialDetails.getTrackId();
-                TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
-                Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
-
-                boolean checkTxnExists = checkIfTxnExists(detailsId);
-                if (checkTxnExists) {
-                    // here update the txn details
-                    transactionRepository.updateLenderInfoIdFieldByDetailsId(detailsId, lenderInfoId);
-                    essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
-                }
-                else {
-                    // here add new entry
-                    TransactionModel transaction = new TransactionModel();
-                    transaction.setDetailsId(detailsId);
-                    transaction.setUserId(userId);
-                    transaction.setLenderInfoId(lenderInfoId);
-                    transaction.setStatus(statusStr.toUpperCase()); // here status will be "initiate"
-                    transactionRepository.save(transaction);
-
-                    essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
-                }
-
-                msg = "OTP Sent Successful";
-                statusCode = HttpStatus.CREATED;
-                status = true;
-            } else {
-                msg = "Invalid OTP";
+                msg = "PAN-OTP-EXCEED";
                 statusCode = HttpStatus.BAD_REQUEST;
                 status = false;
+            } else {
+                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetails.getUserId();
+                UserModel userModel = userRepository.findById(userId).get();
+                long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
+
+                if (receivedOtp == lastFourDigitsOfPan) {
+                    // Initiate the txn
+                    UUID trackId = essentialDetails.getTrackId();
+                    TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
+                    Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
+
+                    boolean checkTxnExists = checkIfTxnExists(detailsId);
+                    if (checkTxnExists) {
+                        // here update the txn details
+                        transactionRepository.updateLenderInfoIdFieldByDetailsId(detailsId, lenderInfoId);
+                        essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
+                    } else {
+                        // here add new entry
+                        TransactionModel transaction = new TransactionModel();
+                        transaction.setDetailsId(detailsId);
+                        transaction.setUserId(userId);
+                        transaction.setLenderInfoId(lenderInfoId);
+                        transaction.setStatus(statusStr.toUpperCase()); // here status will be "initiate"
+                        transactionRepository.save(transaction);
+
+                        essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
+                    }
+
+                    msg = "OTP Sent Successful";
+                    statusCode = HttpStatus.CREATED;
+                    status = true;
+                } else {
+                    msg = "Invalid OTP";
+                    statusCode = HttpStatus.BAD_REQUEST;
+                    status = false;
+                }
             }
         }
 
