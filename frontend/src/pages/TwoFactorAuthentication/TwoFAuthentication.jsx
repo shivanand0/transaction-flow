@@ -8,6 +8,8 @@ import { InitiateTransaction, ConfirmTransaction } from '../../config/API/Api';
 import ConfirmationNavbar from '../../components/Navbar/ConfirmationNavbar';
 import { useNavigate, redirect } from 'react-router-dom';
 import { CustomBox2 } from "../../components/Lender/Styles";
+import Navbar from '../../components/Navbar/Navbar';
+
 const TwoFAuthentication = () => {
   const navigate = useNavigate();
   const { detailsId } = useParams();
@@ -163,9 +165,9 @@ const TwoFAuthentication = () => {
 
   return (
     <>
-      <ConfirmationNavbar goBackUri={`/transaction/lender-selection/${detailsId}`} detailsId={detailsId} />
-
-      {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
+      <Navbar isHome={false} isTenurePage={true} isTxnPage={true} />
+      
+      {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E", padding: "20px" }} />}
       <CustomBox2 sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <h2>Transaction Confirmation</h2>
 
