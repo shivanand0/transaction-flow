@@ -117,7 +117,7 @@ const MainCard = () => {
             <TextField
               variant="outlined"
               label="Amount"
-              type="number"
+              type="tel"
               size="small"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
