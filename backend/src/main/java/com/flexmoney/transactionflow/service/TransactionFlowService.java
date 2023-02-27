@@ -280,7 +280,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                     statusCode = HttpStatus.CREATED;
                     status = true;
                 } else {
-                    msg = "Invalid OTP";
+                    msg = "Invalid PAN Details";
                     statusCode = HttpStatus.BAD_REQUEST;
                     status = false;
                 }

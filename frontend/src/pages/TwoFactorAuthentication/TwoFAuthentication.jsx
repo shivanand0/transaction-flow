@@ -167,7 +167,7 @@ const TwoFAuthentication = () => {
     <>
       <Navbar isHome={false} isTenurePage={true} isTxnPage={true} />
       
-      {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E", padding: "20px" }} />}
+      {loading && <LinearProgress style={{ backgroundColor: "#4DBE0E" }} />}
       <CustomBox2 sx={{ marginBottom: "-80px", display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <h2>Transaction Confirmation</h2>
 
