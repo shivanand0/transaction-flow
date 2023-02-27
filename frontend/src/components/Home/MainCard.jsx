@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
@@ -14,7 +14,24 @@ import SaveIcon from '@mui/icons-material/Save';
 
 const MainCard = () => {
   const navigate = useNavigate();
-  const { setAlert, setUser, loading, setLoading } = AppState()
+  const { setAlert, setUser, loading, setLoading, setLenderdetails, setTransactionStatus, setTrackStageValues } = AppState()
+
+  useEffect(() => {
+    setTransactionStatus("");
+    setLenderdetails(null);
+    setTrackStageValues({
+      selection: "LENDER_SELECTION",
+      selectedLenderId: null,
+      selectedLenderInfoId: null
+    });
+    setUser({
+      name: "",
+      uid: "",
+      mobile: "",
+      amount: null,
+      detailsId: ""
+    })
+  }, [])
 
   const [name, setName] = useState("")
   const [number, setNumber] = useState(null)
