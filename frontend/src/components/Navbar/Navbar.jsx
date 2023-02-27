@@ -20,7 +20,7 @@ const Navbar = ({ isHome, goBackUri, isTenurePage }) => {
     const { user, lenderDetails, trackStageValues } = AppState();
 
     const lenderInfo = lenderDetails !== null ? lenderDetails.data.lenderDetailsList[trackStageValues.selectedLenderId - 1] : null
-    console.log("lenderInfo ", lenderInfo)
+    
     return (
         <>
             <CustomBox
