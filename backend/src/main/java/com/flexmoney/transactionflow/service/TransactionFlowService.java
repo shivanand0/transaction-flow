@@ -56,7 +56,7 @@ public class TransactionFlowService implements ITransactionFlowService {
             List<Integer> allLenderIds =lenderModelList.stream()
                     .map(lenderModel -> lenderModel.getId())
                     .collect(Collectors.toList());
-            System.out.println(allLenderIds);
+
             List<LenderIdModel> lenderIdModelList = new ArrayList<>();
             for (int i = 0; i < allLenderIds.size(); i++) {
                 LenderIdModel lenderIdModel = LenderIdModel.builder().lenderId(allLenderIds.get(i))
