@@ -1,5 +1,4 @@
 package com.flexmoney.transactionflow.service;
-import com.flexmoney.transactionflow.error.CreditLimitException;
 import com.flexmoney.transactionflow.model.*;
 import com.flexmoney.transactionflow.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionFlowService implements ITransactionFlowService {
@@ -36,24 +35,32 @@ public class TransactionFlowService implements ITransactionFlowService {
     private IEssentialDetailsRepository essentialDetailsRepository;
 
     @Override
-    public ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception {
+    public ResponseEntity<UserResponseModel> saveUser(UserRequestModel userRequestModel) throws Exception {
 
-        Matcher matcher =  regexp.matcher(userDTO.getMobileNumber());
+        Matcher matcher =  regexp.matcher(userRequestModel.getMobileNumber());
         if (!matcher.find()) {
            throw new Exception("Please enter a valid mobile number");
         }
-        UserModel userModel = userRepository.findByMobileNumber(userDTO.getMobileNumber());
+        UserModel userModel = userRepository.findByMobileNumber(userRequestModel.getMobileNumber());
 
         if (userModel == null) {
-            UserModel user = new UserModel();
-            user.setUserName(userDTO.getUserName());
-            user.setMobileNumber(userDTO.getMobileNumber());
-            user.setLastFourDigitsOfPan(1234L);
+            Long mockLastFourDigitsOfPan=1234L;
+            double mockCreditLimit=50000.00;
 
+            UserModel user = new UserModel();
+            user.setUserName(userRequestModel.getUserName());
+            user.setMobileNumber(userRequestModel.getMobileNumber());
+            user.setLastFourDigitsOfPan(mockLastFourDigitsOfPan);
+
+            List<LenderModel> lenderModelList= lenderRepository.findAll();
+            List<Integer> allLenderIds =lenderModelList.stream()
+                    .map(lenderModel -> lenderModel.getId())
+                    .collect(Collectors.toList());
+            System.out.println(allLenderIds);
             List<LenderIdModel> lenderIdModelList = new ArrayList<>();
-            for (int i = 1; i <= 3; i++) {
-                LenderIdModel lenderIdModel = LenderIdModel.builder().lenderId(i)
-                        .creditLimit(50000.00)
+            for (int i = 0; i < allLenderIds.size(); i++) {
+                LenderIdModel lenderIdModel = LenderIdModel.builder().lenderId(allLenderIds.get(i))
+                        .creditLimit(mockCreditLimit)
                         .build();
                 lenderIdModelList.add(lenderIdModel);
             }
@@ -67,70 +74,70 @@ public class TransactionFlowService implements ITransactionFlowService {
         TrackStageModel savedTrackStage = trackStageRepository.save(trackStage);
         UUID trackId = savedTrackStage.getTrackId();
 
-        EssentialDetails essentialDetails = EssentialDetails.builder()
+        EssentialDetailsModel essentialDetailsModel = EssentialDetailsModel.builder()
                 .trackId(trackId)
                 .userId(userModel.getId())
-                .mobileNumber(userDTO.getMobileNumber())
-                .amount(userDTO.getAmount())
+                .mobileNumber(userRequestModel.getMobileNumber())
+                .amount(userRequestModel.getAmount())
                 .txnCount(0)
                 .PanOTPCount(0)
                 .MobOTPCount(0)
                 .build();
 
-        essentialDetailsRepository.save(essentialDetails);
+        essentialDetailsRepository.save(essentialDetailsModel);
 
 
-        UserResponse userResponse = UserResponse.builder()
-                .detailsId(essentialDetails.getDetailsId())
+        UserResponseModel userResponseModel = UserResponseModel.builder()
+                .detailsId(essentialDetailsModel.getDetailsId())
                 .trackId(trackId)
                 .userId(userModel.getId())
-                .mobileNumber(userDTO.getMobileNumber())
-                .amount(userDTO.getAmount())
+                .mobileNumber(userRequestModel.getMobileNumber())
+                .amount(userRequestModel.getAmount())
                 .statusCode(HttpStatus.OK.value())
                 .build();
 
-        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(userResponseModel, HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<?> saveTrackStage(UUID detailsId, TrackStageDTO trackStageDTO) {
-        EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-        UUID trackId = essentialDetails.getTrackId();
-        TrackStageModel.selectionStage selection = trackStageDTO.getSelection();
-        Integer selectedLenderId = trackStageDTO.getSelectedLenderId();
-        Integer selectedLenderInfoId = trackStageDTO.getSelectedLenderInfoId();
+    public ResponseEntity<?> saveTrackStage(UUID detailsId, TrackStageRequestModel trackStageRequestModel) {
+        EssentialDetailsModel essentialDetailsModel = essentialDetailsRepository.findById(detailsId).get();
+        UUID trackId = essentialDetailsModel.getTrackId();
+        TrackStageModel.selectionStage selection = trackStageRequestModel.getSelection();
+        Integer selectedLenderId = trackStageRequestModel.getSelectedLenderId();
+        Integer selectedLenderInfoId = trackStageRequestModel.getSelectedLenderInfoId();
         trackStageRepository.updateRemainingFieldsById(selection, trackId, selectedLenderId, selectedLenderInfoId);
         return new ResponseEntity<>("Success", HttpStatus.CREATED);
     }
 
     @Override
-    public LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO) {
+    public LenderInfoModel addLender(LenderInfoRequestModel lenderInfoRequestModel) {
 
-        LenderModel lender = lenderRepository.findByLenderName(lenderInfoDTO.getLender().getLenderName());
+        LenderModel lender = lenderRepository.findByLenderName(lenderInfoRequestModel.getLender().getLenderName());
         LenderInfoModel lenderInfo;
         LenderModel lenderModel;
 
         if (lender != null) {
             lenderModel = lender;
         } else {
-            lenderModel = lenderInfoDTO.getLender();
+            lenderModel = lenderInfoRequestModel.getLender();
         }
 
         lenderInfo = LenderInfoModel.builder()
                 .lender(lenderModel)
-                .tenure(lenderInfoDTO.getTenure())
-                .tenureType(lenderInfoDTO.getTenureType())
-                .rateOfInterest(lenderInfoDTO.getRateOfInterest())
+                .tenure(lenderInfoRequestModel.getTenure())
+                .tenureType(lenderInfoRequestModel.getTenureType())
+                .rateOfInterest(lenderInfoRequestModel.getRateOfInterest())
                 .build();
         return lenderInfoRepository.save(lenderInfo);
     }
 
     @Override
-    public ResponseEntity<Details> getDetails(UUID detailsId) {
+    public ResponseEntity<DetailsModel> getDetails(UUID detailsId) {
         boolean check = checkTxnCountValues(detailsId, "txncount");
         if(check == false){
             // thro error "You're not approved by our lenders for transaction";
-            return new ResponseEntity<>(Details
+            return new ResponseEntity<>(DetailsModel
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .status(false)
@@ -142,7 +149,7 @@ public class TransactionFlowService implements ITransactionFlowService {
 
         boolean check2 = checkIfTxnIsCompleted(detailsId);
         if(check2 == true){
-            return new ResponseEntity<>(Details
+            return new ResponseEntity<>(DetailsModel
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .status(false)
@@ -152,7 +159,7 @@ public class TransactionFlowService implements ITransactionFlowService {
             );
         };
 
-        Optional<EssentialDetails> detailsDTO = essentialDetailsRepository.findById(detailsId);
+        Optional<EssentialDetailsModel> detailsDTO = essentialDetailsRepository.findById(detailsId);
         Long userId = detailsDTO.get().getUserId();
         double amount = detailsDTO.get().getAmount();
         String mobileNumber = detailsDTO.get().getMobileNumber();
@@ -162,13 +169,13 @@ public class TransactionFlowService implements ITransactionFlowService {
         lenderIdModelList.forEach(lender -> userPreApprovedLenders.add(lender.getLenderId()));
 
 
-        List<LenderDetails> lenderDetailsList = new ArrayList<>();
+        List<LenderDetailsModel> lenderDetailsModelList = new ArrayList<>();
 
 
         for (Integer lenderID : userPreApprovedLenders) {
 
             List<LenderInfoModel> lenderInfo = lenderInfoRepository.findAllByLenderId(lenderID);
-            List<EmiDetails> emiDetailsList = new ArrayList<>();
+            List<EmiDetailsModel> emiDetailsModelList = new ArrayList<>();
 
             for (LenderInfoModel lenderI : lenderInfo) {
                 double principal = amount;
@@ -186,7 +193,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                     totalInterest = 0;
                 }
 
-                EmiDetails emiDetails = EmiDetails.builder()
+                EmiDetailsModel emiDetailsModel = EmiDetailsModel.builder()
                         .lenderInfoId(lenderInfoId)
                         .loanDuration(time)
                         .interestRate(lenderI.getRateOfInterest())
@@ -195,37 +202,37 @@ public class TransactionFlowService implements ITransactionFlowService {
                         .loanAmount(principal)
                         .tenureType(lenderI.getTenureType())
                         .build();
-                emiDetailsList.add(emiDetails);
+                emiDetailsModelList.add(emiDetailsModel);
             }
-            LenderDetails lenderDetails = LenderDetails.builder()
+            LenderDetailsModel lenderDetailsModel = LenderDetailsModel.builder()
                     .lenderId(lenderID)
                     .lenderName(lenderRepository.findById(lenderID).get().getLenderName())
                     .primaryLogoUrl(lenderRepository.findById(lenderID).get().getPrimaryLogoUrl())
                     .secondaryLogoUrl(lenderRepository.findById(lenderID).get().getSecondaryLogoUrl())
                     .lenderType("EMI")
-                    .emiDetailsList(emiDetailsList)
+                    .emiDetailsModelList(emiDetailsModelList)
                     .build();
 
-            lenderDetailsList.add(lenderDetails);
+            lenderDetailsModelList.add(lenderDetailsModel);
         }
 
-        return new ResponseEntity<>(Details.builder()
+        return new ResponseEntity<>(DetailsModel.builder()
                 .statusCode(HttpStatus.OK.value())
                 .status(true)
                 .userName(userRepository.findById(userId).get().getUserName())
                 .mobileNumber(mobileNumber)
                 .amount(amount)
-                .lenderDetailsList(lenderDetailsList)
+                .lenderDetailsModelList(lenderDetailsModelList)
                 .build(), HttpStatus.OK);
 
     }
 
     @Override
-    public ResponseEntity<TransactionResponse> InitiateTxn(TransactionDTO transactionDTO) {
-        UUID detailsId = transactionDTO.getDetailsId();
-        Long receivedOtp = transactionDTO.getOtp();
-        String statusStr = transactionDTO.getStatus();
-        String remark = transactionDTO.getRemark();
+    public ResponseEntity<TransactionResponse> InitiateTxn(TransactionRequestModel transactionRequestModel) {
+        UUID detailsId = transactionRequestModel.getDetailsId();
+        Long receivedOtp = transactionRequestModel.getOtp();
+        String statusStr = transactionRequestModel.getStatus();
+        String remark = transactionRequestModel.getRemark();
 
         boolean status;
         String msg;
@@ -248,14 +255,14 @@ public class TransactionFlowService implements ITransactionFlowService {
                 statusCode = HttpStatus.BAD_REQUEST;
                 status = false;
             } else {
-                EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-                long userId = essentialDetails.getUserId();
+                EssentialDetailsModel essentialDetailsModel = essentialDetailsRepository.findById(detailsId).get();
+                long userId = essentialDetailsModel.getUserId();
                 UserModel userModel = userRepository.findById(userId).get();
                 long lastFourDigitsOfPan = userModel.getLastFourDigitsOfPan();
 
                 if (receivedOtp == lastFourDigitsOfPan) {
                     // Initiate the txn
-                    UUID trackId = essentialDetails.getTrackId();
+                    UUID trackId = essentialDetailsModel.getTrackId();
                     TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
                     Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
 
@@ -297,11 +304,11 @@ public class TransactionFlowService implements ITransactionFlowService {
     }
 
     @Override
-    public ResponseEntity<TransactionResponse> ConfirmTxn(TransactionDTO transactionDTO) {
-        UUID detailsId = transactionDTO.getDetailsId();
-        Long receivedOtp = transactionDTO.getOtp();
-        String statusStr = transactionDTO.getStatus();
-        String remark = transactionDTO.getRemark();
+    public ResponseEntity<TransactionResponse> ConfirmTxn(TransactionRequestModel transactionRequestModel) {
+        UUID detailsId = transactionRequestModel.getDetailsId();
+        Long receivedOtp = transactionRequestModel.getOtp();
+        String statusStr = transactionRequestModel.getStatus();
+        String remark = transactionRequestModel.getRemark();
         long expectedMobileOtp = 1234;
 
         boolean status;
@@ -348,17 +355,17 @@ public class TransactionFlowService implements ITransactionFlowService {
 
     public boolean checkTxnCountValues(UUID detailsId, String checkFor){
             // checkFor : txncount, panotp, mobileotp
-            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+            EssentialDetailsModel essentialDetailsModel = essentialDetailsRepository.findById(detailsId).get();
             boolean status=true;
             String remark="";
             Integer cnt=0;
-            if(essentialDetails == null) {
+            if(essentialDetailsModel == null) {
                 status = false;
                 remark = "Invalid Transaction ID";
             } else {
-                Integer txnCount = essentialDetails.getTxnCount();
-                Integer PanOTPCount = essentialDetails.getPanOTPCount();
-                Integer MobOTPCount = essentialDetails.getMobOTPCount();
+                Integer txnCount = essentialDetailsModel.getTxnCount();
+                Integer PanOTPCount = essentialDetailsModel.getPanOTPCount();
+                Integer MobOTPCount = essentialDetailsModel.getMobOTPCount();
 
                 if(checkFor == "panotp") cnt = PanOTPCount;
                 else if(checkFor == "mobileotp") cnt = MobOTPCount;
@@ -372,7 +379,7 @@ public class TransactionFlowService implements ITransactionFlowService {
                         ++txnCount;
 
                         // check the created timestamp with current timestamp
-                        Date d1 = essentialDetails.getCreatedAt();
+                        Date d1 = essentialDetailsModel.getCreatedAt();
                         Date d2 = new Date();
 
                         long difference_In_Time = d2.getTime() - d1.getTime();
@@ -425,8 +432,8 @@ public class TransactionFlowService implements ITransactionFlowService {
                 }
             }
 
-            EssentialDetails essentialDetails = essentialDetailsRepository.findById(detailsId).get();
-            String detailsStatus = essentialDetails.getStatus();
+            EssentialDetailsModel essentialDetailsModel = essentialDetailsRepository.findById(detailsId).get();
+            String detailsStatus = essentialDetailsModel.getStatus();
             if(detailsStatus != null) {
                 if (detailsStatus.equalsIgnoreCase("SUCCESS") || detailsStatus.equalsIgnoreCase("FAIL")) {
                     status = true;

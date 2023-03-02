@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionDTO {
-    private UUID detailsId;
-    private Long otp;
-    private String status;
-    private String remark;
+public class LenderInfoRequestModel {
+    private LenderModel lender;
+    private Integer tenure;
+    private double rateOfInterest;
+    private String tenureType;
 }

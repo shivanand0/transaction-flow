@@ -11,12 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LenderDetails {
+public class LenderDetailsModel {
     private Integer lenderId;
     private String lenderName;
     private String primaryLogoUrl;
 
     private String secondaryLogoUrl;
     private String lenderType;
-    private List<EmiDetails> emiDetailsList;
+    private List<EmiDetailsModel> emiDetailsModelList;
 }

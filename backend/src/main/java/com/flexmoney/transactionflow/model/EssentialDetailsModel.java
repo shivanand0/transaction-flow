@@ -20,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Builder
-public class EssentialDetails {
+public class EssentialDetailsModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty("txnId")

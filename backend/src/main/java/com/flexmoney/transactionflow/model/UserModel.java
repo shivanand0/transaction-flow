@@ -14,6 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @NotNull(message = "Please enter your name")
     @NotBlank(message = "Please enter your name")
     private String userName;
@@ -29,7 +32,5 @@ public class UserModel {
     private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
 }

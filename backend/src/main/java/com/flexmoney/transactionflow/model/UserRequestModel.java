@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserRequestModel {
     @NotNull(message = "Please enter your name")
     @NotBlank(message = "Please enter your name")
     private String userName;

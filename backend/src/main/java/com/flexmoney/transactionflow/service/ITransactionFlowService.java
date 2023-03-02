@@ -6,12 +6,12 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 public interface ITransactionFlowService {
-    ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception;
-    ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO);
-    LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
-    ResponseEntity<Details> getDetails(UUID detailsId);
+    ResponseEntity<UserResponseModel> saveUser(UserRequestModel userRequestModel) throws Exception;
+    ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageRequestModel trackStageRequestModel);
+    LenderInfoModel addLender(LenderInfoRequestModel lenderInfoRequestModel);
+    ResponseEntity<DetailsModel> getDetails(UUID detailsId);
 
-    ResponseEntity<TransactionResponse> InitiateTxn(TransactionDTO transactionDTO);
+    ResponseEntity<TransactionResponse> InitiateTxn(TransactionRequestModel transactionRequestModel);
 
-    ResponseEntity<TransactionResponse> ConfirmTxn(TransactionDTO transactionDTO);
+    ResponseEntity<TransactionResponse> ConfirmTxn(TransactionRequestModel transactionRequestModel);
 }

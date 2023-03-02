@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponse {
+public class UserResponseModel {
     @JsonProperty("txnId")
     private UUID detailsId;
     private UUID trackId;
