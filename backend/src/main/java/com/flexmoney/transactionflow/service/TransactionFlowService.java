@@ -60,7 +60,7 @@ public class TransactionFlowService implements ITransactionFlowService {
 
                 if (receivedOtp == lastFourDigitsOfPan) {
                     // Initiate the txn
-                    UUID trackId = essentialDetailsModel.getTrackId();
+                    UUID trackId = essentialDetailsModel.getDetailsId();
                     TrackStageModel trackStageModel = trackStageRepository.findByTrackId(trackId);
                     Integer lenderInfoId = trackStageModel.getSelectedLenderInfoId();
 
