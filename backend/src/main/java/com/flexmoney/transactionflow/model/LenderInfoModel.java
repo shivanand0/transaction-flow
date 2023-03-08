@@ -20,7 +20,7 @@ public class LenderInfoModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(cascade= CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private LenderModel lender;
 
     private Integer tenure;

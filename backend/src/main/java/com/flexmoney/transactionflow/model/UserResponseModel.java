@@ -25,7 +25,7 @@ public class UserResponseModel {
 
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
-    @Pattern(regexp="(^$|[0-9]{10})",message = "Please enter a valid mobile number")
+    @Pattern(regexp = "(^$|[0-9]{10})", message = "Please enter a valid mobile number")
     private String mobileNumber;
 
     @NotNull(message = "Please send the amount")

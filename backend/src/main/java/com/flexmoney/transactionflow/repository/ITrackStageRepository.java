@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 @Transactional
-public interface ITrackStageRepository extends JpaRepository<TrackStageModel,Integer> {
+public interface ITrackStageRepository extends JpaRepository<TrackStageModel, Integer> {
     @Modifying
     @Query(value = "UPDATE TrackStageModel t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedLenderInfoId = :selectedLenderInfoId WHERE t.trackId = :id")
     void updateRemainingFieldsById(@Param("selection") TrackStageModel.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedLenderInfoId") Integer selectedLenderInfoId);

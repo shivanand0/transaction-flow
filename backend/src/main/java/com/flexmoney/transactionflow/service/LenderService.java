@@ -1,18 +1,22 @@
 package com.flexmoney.transactionflow.service;
 
+import com.flexmoney.transactionflow.error.LenderException;
 import com.flexmoney.transactionflow.model.*;
 import com.flexmoney.transactionflow.repository.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class LenderService implements ILenderService{
+@Slf4j
+public class LenderService implements ILenderService {
 
     @Autowired
     private ILenderRepository lenderRepository;
@@ -34,8 +38,7 @@ public class LenderService implements ILenderService{
 
 
     @Override
-    public LenderInfoModel addLender(LenderInfoRequestModel lenderInfoRequestModel) {
-
+    public void addLender(LenderInfoRequestModel lenderInfoRequestModel) throws LenderException {
         LenderModel lender = lenderRepository.findByLenderName(lenderInfoRequestModel.getLender().getLenderName());
         LenderInfoModel lenderInfo;
         LenderModel lenderModel;
@@ -52,15 +55,19 @@ public class LenderService implements ILenderService{
                 .tenureType(lenderInfoRequestModel.getTenureType())
                 .rateOfInterest(lenderInfoRequestModel.getRateOfInterest())
                 .build();
-        return lenderInfoRepository.save(lenderInfo);
+        LenderInfoModel savedLenderInfoModel = lenderInfoRepository.save(lenderInfo);
+        if (savedLenderInfoModel == null) {
+            log.error("Unable to add the lender: {}", lender.getLenderName());
+            throw new LenderException("Unable to add the lender", 500);
+        }
     }
 
     @Override
     public ResponseEntity<DetailsModel> getDetails(UUID detailsId) {
 
         boolean check = transactionFlowService.checkTxnCountValues(detailsId, "txncount");
-        if(check == false){
-            // thro error "You're not approved by our lenders for transaction";
+        if (check == false) {
+            // throw error "You're not approved by our lenders for transaction";
             return new ResponseEntity<>(DetailsModel
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -72,7 +79,7 @@ public class LenderService implements ILenderService{
         }
 
         boolean check2 = transactionFlowService.checkIfTxnIsCompleted(detailsId);
-        if(check2 == true){
+        if (check2 == true) {
             return new ResponseEntity<>(DetailsModel
                     .builder()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -81,7 +88,8 @@ public class LenderService implements ILenderService{
                     .build(),
                     HttpStatus.BAD_REQUEST
             );
-        };
+        }
+        ;
 
         Optional<EssentialDetailsModel> detailsDTO = essentialDetailsRepository.findById(detailsId);
         Long userId = detailsDTO.get().getUserId();

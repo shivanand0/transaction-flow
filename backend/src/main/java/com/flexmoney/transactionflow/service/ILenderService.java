@@ -1,13 +1,14 @@
 package com.flexmoney.transactionflow.service;
 
+import com.flexmoney.transactionflow.error.LenderException;
 import com.flexmoney.transactionflow.model.DetailsModel;
-import com.flexmoney.transactionflow.model.LenderInfoModel;
 import com.flexmoney.transactionflow.model.LenderInfoRequestModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
 public interface ILenderService {
-    LenderInfoModel addLender(LenderInfoRequestModel lenderInfoRequestModel);
+    void addLender(LenderInfoRequestModel lenderInfoRequestModel) throws LenderException;
+
     ResponseEntity<DetailsModel> getDetails(UUID detailsId);
 }

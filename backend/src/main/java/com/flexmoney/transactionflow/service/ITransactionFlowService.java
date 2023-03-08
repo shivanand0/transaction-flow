@@ -1,6 +1,7 @@
 package com.flexmoney.transactionflow.service;
 
-import com.flexmoney.transactionflow.model.*;
+import com.flexmoney.transactionflow.model.TransactionRequestModel;
+import com.flexmoney.transactionflow.model.TransactionResponse;
 import org.springframework.http.ResponseEntity;
 
 

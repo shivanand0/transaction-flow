@@ -1,7 +1,9 @@
 package com.flexmoney.transactionflow.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +21,10 @@ import java.util.UUID;
 @Builder
 public class TrackStageModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     public UUID trackId;
-    public enum selectionStage{LENDER_SELECTION,TENURE_SELECTION,TWO_FACTOR_AUTHENTICATION,TRANSACTION_COMPLETE}
+
+    public enum selectionStage {LENDER_SELECTION, TENURE_SELECTION, TWO_FACTOR_AUTHENTICATION, TRANSACTION_COMPLETE}
+
     @Enumerated(EnumType.STRING)
     private selectionStage selection;
     private Integer selectedLenderId;
