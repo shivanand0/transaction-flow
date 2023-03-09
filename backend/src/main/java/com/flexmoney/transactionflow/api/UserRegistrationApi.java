@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -43,7 +44,7 @@ public class UserRegistrationApi {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<?> handleUserException(UserException ex) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getCode(), ex.getMessage());
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorDetails, HttpStatusCode.valueOf(ex.getCode()));
     }
 
 }
