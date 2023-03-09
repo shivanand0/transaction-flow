@@ -48,7 +48,7 @@ public class UserService implements IUserService {
             List<LenderModel> lenderModelList = lenderRepository.findAll();
             if (lenderModelList == null) {
                 log.error("Error while fetching the lenders");
-                throw new UserException("Some error occurred please try again after some time", 500);
+                throw new UserException("Some error occurred please try again after some time", HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
             List<Integer> allLenderIds = lenderModelList.stream()
                     .map(lenderModel -> lenderModel.getId())
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
             UserModel userModel1 = userRepository.save(user);
             if (userModel1 == null) {
                 log.error("Unable to save the user with mobile number: " + user.getMobileNumber());
-                throw new UserException("Unable to create user", 500);
+                throw new UserException("Unable to create user", HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
             userModel = userModel1;
         }
@@ -83,7 +83,7 @@ public class UserService implements IUserService {
         EssentialDetailsModel savedEssentialDetailsModel = essentialDetailsRepository.save(essentialDetailsModel);
         if (savedEssentialDetailsModel == null) {
             log.error("Error while saving Essential Details with user mobile number: " + userModel.getMobileNumber());
-            throw new UserException("Some error occurred please try again after some time", 500);
+            throw new UserException("Some error occurred please try again after some time", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
 
@@ -94,7 +94,7 @@ public class UserService implements IUserService {
         TrackStageModel savedTrackStageModel = trackStageRepository.save(trackStage);
         if (savedTrackStageModel == null) {
             log.error("Error while saving Track Stage with user mobile number: " + userModel.getMobileNumber());
-            throw new UserException("Some error occurred please try again after some time", 500);
+            throw new UserException("Some error occurred please try again after some time", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
         UserResponseModel userResponseModel = UserResponseModel.builder()

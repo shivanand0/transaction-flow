@@ -26,7 +26,7 @@ public class UserModel {
     private String userName;
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
-    @Pattern(regexp = "^[6-9][0-9]{9}$", message = "Please enter a valid mobile number")
+    @Pattern(regexp = "^[0-9][0-9]{9}$", message = "Please enter a valid mobile number")
     private String mobileNumber;
     private Long lastFourDigitsOfPan;
     @OneToMany(cascade = CascadeType.ALL)

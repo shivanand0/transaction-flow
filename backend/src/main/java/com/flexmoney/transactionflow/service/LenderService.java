@@ -6,13 +6,12 @@ import com.flexmoney.transactionflow.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -58,59 +57,57 @@ public class LenderService implements ILenderService {
         LenderInfoModel savedLenderInfoModel = lenderInfoRepository.save(lenderInfo);
         if (savedLenderInfoModel == null) {
             log.error("Unable to add the lender: {}", lender.getLenderName());
-            throw new LenderException("Unable to add the lender", 500);
+            throw new LenderException("Unable to add the lender", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     @Override
-    public ResponseEntity<DetailsModel> getDetails(UUID detailsId) {
-
-        boolean check = transactionFlowService.checkTxnCountValues(detailsId, "txncount");
-        if (check == false) {
-            // throw error "You're not approved by our lenders for transaction";
-            return new ResponseEntity<>(DetailsModel
-                    .builder()
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .status(false)
-                    .message("Transaction Timeout")
-                    .build(),
-                    HttpStatus.BAD_REQUEST
-            );
+    public DetailsModel getDetails(UUID detailsId) throws LenderException {
+        EssentialDetailsModel essentialDetails = essentialDetailsRepository.findById(detailsId).get();
+        if (essentialDetails == null) {
+            log.error("Invalid transaction");
+            throw new LenderException("Invalid Transaction", HttpStatus.BAD_REQUEST.value());
         }
 
-        boolean check2 = transactionFlowService.checkIfTxnIsCompleted(detailsId);
-        if (check2 == true) {
-            return new ResponseEntity<>(DetailsModel
-                    .builder()
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .status(false)
-                    .message("This transaction is completed!")
-                    .build(),
-                    HttpStatus.BAD_REQUEST
-            );
+        String userMobileNumber = essentialDetails.getMobileNumber();
+        double userTxnAmount = essentialDetails.getAmount();
+
+        List<LenderIdModel> userEligibleLendersList = lenderIdRepository.findAllByUserMobileNumber(userMobileNumber).stream().filter(e -> e.getCreditLimit() >= userTxnAmount).collect(Collectors.toList());
+        if (userEligibleLendersList == null) {
+            log.error("User does not have enough credit for this transaction with mobile number: {}",userMobileNumber);
+            throw new LenderException("User does not have enough credit for this transaction", HttpStatus.BAD_REQUEST.value());
         }
-        ;
 
-        Optional<EssentialDetailsModel> detailsDTO = essentialDetailsRepository.findById(detailsId);
-        Long userId = detailsDTO.get().getUserId();
-        double amount = detailsDTO.get().getAmount();
-        String mobileNumber = detailsDTO.get().getMobileNumber();
+        boolean txnCountCheck = transactionFlowService.checkTxnCountValues(detailsId, "txncount");
+        if (txnCountCheck == false) {
+            log.error("Transaction timeout occurred with txn id: {}",detailsId);
+            throw new LenderException("Transaction Timeout", HttpStatus.BAD_REQUEST.value());
+        }
 
-        List<LenderIdModel> lenderIdModelList = lenderIdRepository.findAllByUserMobileNumber(mobileNumber);
+        boolean isTxnCompletedCheck = transactionFlowService.checkIfTxnIsCompleted(detailsId);
+        if (isTxnCompletedCheck == true) {
+            log.error("This transaction is completed with txn id: {}",detailsId);
+            throw new LenderException("This transaction is completed!", HttpStatus.BAD_REQUEST.value());
+        }
+
+        Long userId = essentialDetails.getUserId();
         List<Integer> userPreApprovedLenders = new ArrayList<>();
-        lenderIdModelList.forEach(lender -> userPreApprovedLenders.add(lender.getLenderId()));
+        userEligibleLendersList.forEach(lender -> userPreApprovedLenders.add(lender.getLenderId()));
 
 
         List<LenderDetailsModel> lenderDetailsModelList = new ArrayList<>();
 
-
         for (Integer lenderID : userPreApprovedLenders) {
 
             List<LenderInfoModel> lenderInfo = lenderInfoRepository.findAllByLenderId(lenderID);
+            if (lenderInfo == null) {
+                log.error("Unable to fetch lender info with lender id: {}",lenderID);
+                throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
             List<EmiDetailsModel> emiDetailsModelList = new ArrayList<>();
 
             for (LenderInfoModel lenderI : lenderInfo) {
-                double principal = amount;
+                double principal = userTxnAmount;
                 double rate = lenderI.getRateOfInterest() / (12 * 100);
                 Integer time = lenderI.getTenure();
                 Integer emi;
@@ -136,26 +133,37 @@ public class LenderService implements ILenderService {
                         .build();
                 emiDetailsModelList.add(emiDetailsModel);
             }
+
+            LenderModel lenderModel = lenderRepository.findById(lenderID).get();
+            if (lenderModel == null) {
+                log.error("Unable to fetch lender with lender id: {}",lenderID);
+                throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
+
             LenderDetailsModel lenderDetailsModel = LenderDetailsModel.builder()
                     .lenderId(lenderID)
-                    .lenderName(lenderRepository.findById(lenderID).get().getLenderName())
-                    .primaryLogoUrl(lenderRepository.findById(lenderID).get().getPrimaryLogoUrl())
-                    .secondaryLogoUrl(lenderRepository.findById(lenderID).get().getSecondaryLogoUrl())
+                    .lenderName(lenderModel.getLenderName())
+                    .primaryLogoUrl(lenderModel.getPrimaryLogoUrl())
+                    .secondaryLogoUrl(lenderModel.getSecondaryLogoUrl())
                     .lenderType("EMI")
                     .emiDetailsModelList(emiDetailsModelList)
                     .build();
 
             lenderDetailsModelList.add(lenderDetailsModel);
         }
-
-        return new ResponseEntity<>(DetailsModel.builder()
+        String userName = userRepository.findById(userId).get().getUserName();
+        if (userName == null) {
+            log.error("Unable to fetch user details with user id: {}",userId);
+            throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        return DetailsModel.builder()
                 .statusCode(HttpStatus.OK.value())
                 .status(true)
-                .userName(userRepository.findById(userId).get().getUserName())
-                .mobileNumber(mobileNumber)
-                .amount(amount)
+                .userName(userName)
+                .mobileNumber(userMobileNumber)
+                .amount(userTxnAmount)
                 .lenderDetailsModelList(lenderDetailsModelList)
-                .build(), HttpStatus.OK);
+                .build();
 
     }
 }

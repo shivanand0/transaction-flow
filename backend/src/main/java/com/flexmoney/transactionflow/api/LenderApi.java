@@ -7,6 +7,7 @@ import com.flexmoney.transactionflow.model.LenderInfoRequestModel;
 import com.flexmoney.transactionflow.service.ILenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +26,15 @@ public class LenderApi {
     }
 
     @PostMapping("/details")
-    public ResponseEntity<DetailsModel> getDetails(@RequestParam UUID uuid) {
-        return lenderService.getDetails(uuid);
+    public ResponseEntity<DetailsModel> getDetails(@RequestParam UUID uuid) throws LenderException {
+        DetailsModel detailsModel = lenderService.getDetails(uuid);
+        return new ResponseEntity<>(detailsModel, HttpStatus.OK);
     }
 
     @ExceptionHandler(LenderException.class)
     public ResponseEntity<?> handleUserException(LenderException ex) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getCode(), ex.getMessage());
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorDetails, HttpStatusCode.valueOf(ex.getCode()));
     }
 
 }
