@@ -1,11 +1,11 @@
 package com.flexmoney.transactionflow.api;
 
 import com.flexmoney.transactionflow.error.ErrorDetails;
-import com.flexmoney.transactionflow.error.LenderException;
+import com.flexmoney.transactionflow.error.TrackStageException;
 import com.flexmoney.transactionflow.error.ValidationException;
-import com.flexmoney.transactionflow.model.DetailsModel;
-import com.flexmoney.transactionflow.model.LenderInfoRequestModel;
-import com.flexmoney.transactionflow.service.ILenderService;
+import com.flexmoney.transactionflow.model.TrackStageRequestModel;
+import com.flexmoney.transactionflow.service.ITrackStageService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,25 +20,19 @@ import java.util.UUID;
 @RestController
 @CrossOrigin
 @Slf4j
-public class LenderApi {
+public class TrackStageApi {
     @Autowired
-    private ILenderService lenderService;
+    private ITrackStageService trackStageService;
 
-    @PostMapping("/addLender")
-    public ResponseEntity<?> addLender(@RequestBody LenderInfoRequestModel lenderInfoRequestModel, BindingResult result) throws LenderException, ValidationException {
+    @PostMapping("trackStage/{detailsId}")
+    public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("detailsId") UUID detailsId, @Valid @RequestBody TrackStageRequestModel trackStageRequestModel, BindingResult result) throws ValidationException, TrackStageException {
         if (result.hasErrors()) {
             FieldError fieldError = result.getFieldErrors().get(0);
-            log.error("lenderInfoRequestModel validation failed, fields: {}", result.getFieldErrors());
+            log.error("trackStageRequestModel validation failed, fields: {}", result.getFieldErrors());
             throw new ValidationException(fieldError.getDefaultMessage(), 400);
         }
-        lenderService.addLender(lenderInfoRequestModel);
-        return new ResponseEntity<>("Lender Details added Successfully", HttpStatus.CREATED);
-    }
-
-    @PostMapping("/details")
-    public ResponseEntity<?> getDetails(@RequestParam UUID uuid) throws LenderException {
-        DetailsModel detailsModel = lenderService.getDetails(uuid);
-        return new ResponseEntity<>(detailsModel, HttpStatus.OK);
+        trackStageService.saveTrackStage(detailsId, trackStageRequestModel);
+        return new ResponseEntity<>("Success", HttpStatus.CREATED);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -47,10 +41,11 @@ public class LenderApi {
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(LenderException.class)
-    public ResponseEntity<?> handleUserException(LenderException ex) {
+    @ExceptionHandler(TrackStageException.class)
+    public ResponseEntity<?> handleTrackStageException(TrackStageException ex) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getCode(), ex.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatusCode.valueOf(ex.getCode()));
     }
 
 }
+

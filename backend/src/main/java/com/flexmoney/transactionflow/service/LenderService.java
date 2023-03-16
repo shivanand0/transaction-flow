@@ -74,19 +74,19 @@ public class LenderService implements ILenderService {
 
         List<LenderIdModel> userEligibleLendersList = lenderIdRepository.findAllByUserMobileNumber(userMobileNumber).stream().filter(e -> e.getCreditLimit() >= userTxnAmount).collect(Collectors.toList());
         if (userEligibleLendersList == null) {
-            log.error("User does not have enough credit for this transaction with mobile number: {}",userMobileNumber);
+            log.error("User does not have enough credit for this transaction with mobile number: {}", userMobileNumber);
             throw new LenderException("User does not have enough credit for this transaction", HttpStatus.BAD_REQUEST.value());
         }
 
         boolean txnCountCheck = transactionFlowService.checkTxnCountValues(detailsId, "txncount");
         if (txnCountCheck == false) {
-            log.error("Transaction timeout occurred with txn id: {}",detailsId);
+            log.error("Transaction timeout occurred with txn id: {}", detailsId);
             throw new LenderException("Transaction Timeout", HttpStatus.BAD_REQUEST.value());
         }
 
         boolean isTxnCompletedCheck = transactionFlowService.checkIfTxnIsCompleted(detailsId);
         if (isTxnCompletedCheck == true) {
-            log.error("This transaction is completed with txn id: {}",detailsId);
+            log.error("This transaction is completed with txn id: {}", detailsId);
             throw new LenderException("This transaction is completed!", HttpStatus.BAD_REQUEST.value());
         }
 
@@ -101,7 +101,7 @@ public class LenderService implements ILenderService {
 
             List<LenderInfoModel> lenderInfo = lenderInfoRepository.findAllByLenderId(lenderID);
             if (lenderInfo == null) {
-                log.error("Unable to fetch lender info with lender id: {}",lenderID);
+                log.error("Unable to fetch lender info with lender id: {}", lenderID);
                 throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
             List<EmiDetailsModel> emiDetailsModelList = new ArrayList<>();
@@ -136,7 +136,7 @@ public class LenderService implements ILenderService {
 
             LenderModel lenderModel = lenderRepository.findById(lenderID).get();
             if (lenderModel == null) {
-                log.error("Unable to fetch lender with lender id: {}",lenderID);
+                log.error("Unable to fetch lender with lender id: {}", lenderID);
                 throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
 
@@ -153,7 +153,7 @@ public class LenderService implements ILenderService {
         }
         String userName = userRepository.findById(userId).get().getUserName();
         if (userName == null) {
-            log.error("Unable to fetch user details with user id: {}",userId);
+            log.error("Unable to fetch user details with user id: {}", userId);
             throw new LenderException("System Error! We are experiencing technical difficulties & are working to fix them. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         return DetailsModel.builder()

@@ -1,14 +1,14 @@
 package com.flexmoney.transactionflow.service;
 
+import com.flexmoney.transactionflow.error.TransactionException;
 import com.flexmoney.transactionflow.model.TransactionRequestModel;
 import com.flexmoney.transactionflow.model.TransactionResponse;
-import org.springframework.http.ResponseEntity;
 
 
 public interface ITransactionFlowService {
 
-    ResponseEntity<TransactionResponse> InitiateTxn(TransactionRequestModel transactionRequestModel);
+    TransactionResponse initiateTxn(TransactionRequestModel transactionRequestModel) throws TransactionException;
 
-    ResponseEntity<TransactionResponse> ConfirmTxn(TransactionRequestModel transactionRequestModel);
+    TransactionResponse confirmTxn(TransactionRequestModel transactionRequestModel) throws TransactionException;
 
 }

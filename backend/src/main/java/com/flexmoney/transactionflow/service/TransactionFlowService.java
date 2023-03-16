@@ -1,13 +1,14 @@
 package com.flexmoney.transactionflow.service;
 
+import com.flexmoney.transactionflow.error.TransactionException;
 import com.flexmoney.transactionflow.model.*;
 import com.flexmoney.transactionflow.repository.IEssentialDetailsRepository;
 import com.flexmoney.transactionflow.repository.ITrackStageRepository;
 import com.flexmoney.transactionflow.repository.ITransactionRepository;
 import com.flexmoney.transactionflow.repository.IUserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 
 @Service
+@Slf4j
 public class TransactionFlowService implements ITransactionFlowService {
 
     @Autowired
@@ -30,31 +32,27 @@ public class TransactionFlowService implements ITransactionFlowService {
 
 
     @Override
-    public ResponseEntity<TransactionResponse> InitiateTxn(TransactionRequestModel transactionRequestModel) {
+    public TransactionResponse initiateTxn(TransactionRequestModel transactionRequestModel) throws TransactionException {
         UUID detailsId = transactionRequestModel.getDetailsId();
         Long receivedOtp = transactionRequestModel.getOtp();
         String statusStr = transactionRequestModel.getStatus();
         String remark = transactionRequestModel.getRemark();
 
-        boolean status;
         String msg;
         HttpStatus statusCode;
 
         boolean check2 = checkIfTxnIsCompleted(detailsId);
         if (check2 == true) {
-            msg = "Transaction Completed Already!";
-            statusCode = HttpStatus.BAD_REQUEST;
-            status = false;
+            log.error("Transaction Completed Already! with detailsId: {}", detailsId);
+            throw new TransactionException("Transaction Completed Already!", HttpStatus.BAD_REQUEST.value());
         } else {
             boolean check = checkTxnCountValues(detailsId, "panotp");
             if (!check) {
                 // either block user for 24 hours
                 // or mark txn as fail
                 essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "PAN-OTP-EXCEED");
-
-                msg = "PAN-OTP-EXCEED";
-                statusCode = HttpStatus.BAD_REQUEST;
-                status = false;
+                log.error("PAN-OTP-EXCEED for txn with detailsId: {}", detailsId);
+                throw new TransactionException("PAN-OTP-EXCEED", HttpStatus.BAD_REQUEST.value());
             } else {
                 EssentialDetailsModel essentialDetailsModel = essentialDetailsRepository.findById(detailsId).get();
                 long userId = essentialDetailsModel.getUserId();
@@ -80,39 +78,34 @@ public class TransactionFlowService implements ITransactionFlowService {
                         transaction.setLenderInfoId(lenderInfoId);
                         transaction.setStatus(statusStr.toUpperCase()); // here status will be "initiate"
                         transactionRepository.save(transaction);
-
                         essentialDetailsRepository.updateStatusRemarkById(detailsId, "initiate", remark);
                     }
-
                     msg = "OTP Sent Successful";
                     statusCode = HttpStatus.CREATED;
-                    status = true;
                 } else {
-                    msg = "Invalid PAN Details";
-                    statusCode = HttpStatus.BAD_REQUEST;
-                    status = false;
+                    log.error("Invalid PAN Details for txn with detailsId: {}", detailsId);
+                    throw new TransactionException("Invalid PAN Details", HttpStatus.BAD_REQUEST.value());
                 }
             }
         }
 
 
         TransactionResponse transactionResponse = new TransactionResponse();
-        transactionResponse.setStatus(status);
+        transactionResponse.setStatus(true);
         transactionResponse.setStatusCode(statusCode.value());
         transactionResponse.setMessage(msg);
 
-        return new ResponseEntity<>(transactionResponse, statusCode);
+        return transactionResponse;
     }
 
     @Override
-    public ResponseEntity<TransactionResponse> ConfirmTxn(TransactionRequestModel transactionRequestModel) {
+    public TransactionResponse confirmTxn(TransactionRequestModel transactionRequestModel) throws TransactionException {
         UUID detailsId = transactionRequestModel.getDetailsId();
         Long receivedOtp = transactionRequestModel.getOtp();
         String statusStr = transactionRequestModel.getStatus();
         String remark = transactionRequestModel.getRemark();
         long expectedMobileOtp = 1234;
 
-        boolean status;
         String msg;
         HttpStatus statusCode;
 
@@ -125,32 +118,26 @@ public class TransactionFlowService implements ITransactionFlowService {
             // or mark txn as fail
             transactionRepository.updateFieldsById(txnId, "FAIL");
             essentialDetailsRepository.updateStatusRemarkById(detailsId, "FAIL", "MOB-OTP-EXCEED");
-            msg = "MOB-OTP-EXCEED";
-            statusCode = HttpStatus.BAD_REQUEST;
-            status = false;
+            log.error("MOB-OTP-EXCEED for txn with detailsId: {}", detailsId);
+            throw new TransactionException("MOB-OTP-EXCEED", HttpStatus.BAD_REQUEST.value());
         } else {
             if (receivedOtp == expectedMobileOtp) {
-
                 transactionRepository.updateFieldsById(txnId, "SUCCESS");
-
                 msg = "Success";
                 statusCode = HttpStatus.ACCEPTED;
-                status = true;
-
-                essentialDetailsRepository.updateStatusRemarkById(detailsId, "SUCCESS", status + " " + remark);
+                essentialDetailsRepository.updateStatusRemarkById(detailsId, "SUCCESS", true + " " + remark);
             } else {
-                msg = "Invalid OTP";
-                statusCode = HttpStatus.BAD_REQUEST;
-                status = false;
+                log.error("Invalid OTP for txn with detailsId: {}", detailsId);
+                throw new TransactionException("Invalid OTP", HttpStatus.BAD_REQUEST.value());
             }
         }
 
         TransactionResponse transactionResponse = new TransactionResponse();
-        transactionResponse.setStatus(status);
+        transactionResponse.setStatus(true);
         transactionResponse.setStatusCode(statusCode.value());
         transactionResponse.setMessage(msg);
 
-        return new ResponseEntity<>(transactionResponse, statusCode);
+        return transactionResponse;
     }
 
     public boolean checkTxnCountValues(UUID detailsId, String checkFor) {
