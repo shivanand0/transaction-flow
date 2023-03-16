@@ -1,12 +1,10 @@
 package com.flexmoney.transactionflow.repository;
-import com.flexmoney.transactionflow.model.UserModel;
+import com.flexmoney.transactionflow.model.EUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface IUserRepository extends JpaRepository<UserModel,Long>{
-    UserModel findByMobileNumber(String mobileNumber);
+public interface IUserRepository extends JpaRepository<EUser,Long>{
+    EUser findByMobileNumber(String mobileNumber);
 }
 

@@ -1,8 +1,10 @@
 package com.flexmoney.transactionflow.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,28 +13,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Builder
-public class LenderInfoModel {
+public class ELender {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(cascade= CascadeType.ALL)
-    private LenderModel lender;
+    private String lenderName;
 
-    private Integer tenure;
+    private String primaryLogoUrl;
 
-    private String tenureType;
-
-    private double rateOfInterest;
-
+    private String secondaryLogoUrl;
     @CreationTimestamp
     private Date createdAt;
 
     @UpdateTimestamp
     private Date updatedAt;
-
 }

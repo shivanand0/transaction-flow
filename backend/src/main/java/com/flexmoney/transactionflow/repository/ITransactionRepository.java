@@ -1,6 +1,6 @@
 package com.flexmoney.transactionflow.repository;
 
-import com.flexmoney.transactionflow.model.TransactionModel;
+import com.flexmoney.transactionflow.model.ETransaction;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,14 +12,14 @@ import java.util.UUID;
 
 @Repository
 @Transactional
-public interface ITransactionRepository extends JpaRepository<TransactionModel, UUID> {
-    TransactionModel findByDetailsId(UUID detailsId);
+public interface ITransactionRepository extends JpaRepository<ETransaction, UUID> {
+    ETransaction findByDetailsId(UUID detailsId);
 
     @Modifying
-    @Query(value = "UPDATE TransactionModel t SET t.status=:status WHERE t.txnId = :id")
+    @Query(value = "UPDATE ETransaction t SET t.status=:status WHERE t.txnId = :id")
     void updateFieldsById(@Param("id") UUID id, @Param("status") String status);
 
     @Modifying
-    @Query(value = "UPDATE TransactionModel t SET t.lenderInfoId=:lenderInfoId WHERE t.detailsId = :id")
+    @Query(value = "UPDATE ETransaction t SET t.lenderInfoId=:lenderInfoId WHERE t.detailsId = :id")
     void updateLenderInfoIdFieldByDetailsId(@Param("id") UUID id, @Param("lenderInfoId") Integer lenderInfoId);
 }
