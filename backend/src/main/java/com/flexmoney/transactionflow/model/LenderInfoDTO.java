@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LenderInfoDTO {
-    private LenderModel lender;
+    private ELender lender;
     private Integer tenure;
     private double rateOfInterest;
     private String tenureType;

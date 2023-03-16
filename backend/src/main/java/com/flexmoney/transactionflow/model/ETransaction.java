@@ -15,7 +15,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionModel {
+public class ETransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID txnId;

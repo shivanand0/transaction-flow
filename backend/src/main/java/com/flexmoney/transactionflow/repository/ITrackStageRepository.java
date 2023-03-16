@@ -1,6 +1,6 @@
 package com.flexmoney.transactionflow.repository;
 
-import com.flexmoney.transactionflow.model.TrackStageModel;
+import com.flexmoney.transactionflow.model.ETrackStage;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,10 +12,10 @@ import java.util.UUID;
 
 @Repository
 @Transactional
-public interface ITrackStageRepository extends JpaRepository<TrackStageModel,Integer> {
+public interface ITrackStageRepository extends JpaRepository<ETrackStage,Integer> {
     @Modifying
-    @Query(value = "UPDATE TrackStageModel t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedLenderInfoId = :selectedLenderInfoId WHERE t.trackId = :id")
-    void updateRemainingFieldsById(@Param("selection") TrackStageModel.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedLenderInfoId") Integer selectedLenderInfoId);
+    @Query(value = "UPDATE ETrackStage t SET t.selection=:selection,t.selectedLenderId = :selectedLenderId, t.selectedLenderInfoId = :selectedLenderInfoId WHERE t.trackId = :id")
+    void updateRemainingFieldsById(@Param("selection") ETrackStage.selectionStage selection, @Param("id") UUID id, @Param("selectedLenderId") Integer selectedLenderId, @Param("selectedLenderInfoId") Integer selectedLenderInfoId);
 
-    TrackStageModel findByTrackId(UUID trackId);
+    ETrackStage findByTrackId(UUID trackId);
 }

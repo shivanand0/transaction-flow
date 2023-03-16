@@ -2,7 +2,6 @@ package com.flexmoney.transactionflow.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,7 +12,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserModel {
+public class EUser {
     @NotNull(message = "Please enter your name")
     @NotBlank(message = "Please enter your name")
     private String userName;
@@ -24,7 +23,7 @@ public class UserModel {
     private Long lastFourDigitsOfPan;
     @OneToMany(cascade= CascadeType.ALL)
     @JoinColumn(name="userMobileNumber",referencedColumnName = "mobileNumber")
-    private List<LenderIdModel> lenderId;
+    private List<ELenderId> lenderId;
     @CreationTimestamp
     private Date createdAt;
     @UpdateTimestamp
