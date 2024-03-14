@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ILenderInfoRepository extends JpaRepository<LenderInfoModel,Integer> {
+public interface ILenderInfoRepository extends JpaRepository<LenderInfoModel, Integer> {
     List<LenderInfoModel> findAllByLenderId(Integer id);
 }

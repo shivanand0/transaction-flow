@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TwoFVerificationDTO {
+public class TwoFVerificationRequestModel {
     @NotNull(message = "Provide detailsId")
     @NotBlank(message = "Provide detailsId")
     private UUID detailsId;

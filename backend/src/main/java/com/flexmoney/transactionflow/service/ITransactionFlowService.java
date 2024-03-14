@@ -1,17 +1,14 @@
 package com.flexmoney.transactionflow.service;
 
-import com.flexmoney.transactionflow.model.*;
-import org.springframework.http.ResponseEntity;
+import com.flexmoney.transactionflow.error.TransactionException;
+import com.flexmoney.transactionflow.model.TransactionRequestModel;
+import com.flexmoney.transactionflow.model.TransactionResponse;
 
-import java.util.UUID;
 
 public interface ITransactionFlowService {
-    ResponseEntity<UserResponse> saveUser(UserDTO userDTO) throws Exception;
-    ResponseEntity<?> saveTrackStage(UUID trackId, TrackStageDTO trackStageDTO);
-    LenderInfoModel addLender(LenderInfoDTO lenderInfoDTO);
-    ResponseEntity<Details> getDetails(UUID detailsId);
 
-    ResponseEntity<TransactionResponse> InitiateTxn(TransactionDTO transactionDTO);
+    TransactionResponse initiateTxn(TransactionRequestModel transactionRequestModel) throws TransactionException;
 
-    ResponseEntity<TransactionResponse> ConfirmTxn(TransactionDTO transactionDTO);
+    TransactionResponse confirmTxn(TransactionRequestModel transactionRequestModel) throws TransactionException;
+
 }

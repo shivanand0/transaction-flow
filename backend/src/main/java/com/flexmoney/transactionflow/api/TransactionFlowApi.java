@@ -1,50 +1,65 @@
 package com.flexmoney.transactionflow.api;
-import com.flexmoney.transactionflow.model.*;
+
+import com.flexmoney.transactionflow.error.ErrorDetails;
+import com.flexmoney.transactionflow.error.TrackStageException;
+import com.flexmoney.transactionflow.error.TransactionException;
+import com.flexmoney.transactionflow.error.ValidationException;
+import com.flexmoney.transactionflow.model.TransactionRequestModel;
+import com.flexmoney.transactionflow.model.TransactionResponse;
 import com.flexmoney.transactionflow.service.ITransactionFlowService;
-import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @CrossOrigin
+@Slf4j
 public class TransactionFlowApi {
-        @Autowired
-        private ITransactionFlowService transactionFlowService;
 
-        @PostMapping("/users")
-        public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserDTO userDTO) throws Exception {
-            return transactionFlowService.saveUser(userDTO);
-        }
+    @Autowired
+    private ITransactionFlowService transactionFlowService;
 
-        @PostMapping("trackStage/{detailsId}")
-        public ResponseEntity<?> saveTrackStage(@Valid @PathVariable("detailsId") UUID detailsId, @Valid @RequestBody TrackStageDTO trackStageDTO){
-                return transactionFlowService.saveTrackStage(detailsId,trackStageDTO);
+    @PostMapping("/transaction/initiate")
+    public ResponseEntity<?> initiateTxn(@RequestBody TransactionRequestModel transactionRequestModel, BindingResult result) throws ValidationException, TransactionException {
+        if (result.hasErrors()) {
+            FieldError fieldError = result.getFieldErrors().get(0);
+            log.error("transactionRequestModel validation failed, fields: {}", result.getFieldErrors());
+            throw new ValidationException(fieldError.getDefaultMessage(), 400);
         }
-        @PostMapping("/addLender")
-        public ResponseEntity<?> addLender(@RequestBody LenderInfoDTO lenderInfoDTO){
-                LenderInfoModel lenderInfoModel =transactionFlowService.addLender(lenderInfoDTO);
-                if(lenderInfoModel==null){
-                        return new ResponseEntity<>("Error Occurred !!! Lender Details not added", HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-                return new ResponseEntity<>("Lender Details added Successfully",HttpStatus.CREATED);
-        }
+        TransactionResponse transactionResponse = transactionFlowService.initiateTxn(transactionRequestModel);
+        return new ResponseEntity<>(transactionResponse, HttpStatus.CREATED);
+    }
 
-        @PostMapping("/details")
-        public ResponseEntity<Details> getDetails(@RequestParam UUID uuid){
-                return transactionFlowService.getDetails(uuid);
+    @PostMapping("/transaction/confirm")
+    public ResponseEntity<?> confirmTxn(@RequestBody TransactionRequestModel transactionRequestModel, BindingResult result) throws ValidationException, TransactionException {
+        if (result.hasErrors()) {
+            FieldError fieldError = result.getFieldErrors().get(0);
+            log.error("transactionRequestModel validation failed, fields: {}", result.getFieldErrors());
+            throw new ValidationException(fieldError.getDefaultMessage(), 400);
         }
+        TransactionResponse transactionResponse = transactionFlowService.confirmTxn(transactionRequestModel);
+        return new ResponseEntity<>(transactionResponse, HttpStatus.ACCEPTED);
+    }
 
-        @PostMapping("/transaction/initiate")
-        public ResponseEntity<TransactionResponse> initiateTxn(@RequestBody TransactionDTO transactionDTO){
-                return transactionFlowService.InitiateTxn(transactionDTO);
-        }
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleInvalidFields(ValidationException ex) {
+        ErrorDetails errorDetails = new ErrorDetails(ex.getCode(), ex.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
 
-        @PostMapping("/transaction/confirm")
-        public ResponseEntity<TransactionResponse> confirmTxn(@RequestBody TransactionDTO transactionDTO){
-                return transactionFlowService.ConfirmTxn(transactionDTO);
-        }
+    @ExceptionHandler(TrackStageException.class)
+    public ResponseEntity<?> handleTransactionException(TransactionException ex) {
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setStatus(false);
+        transactionResponse.setStatusCode(ex.getCode());
+        transactionResponse.setMessage(ex.getMessage());
+
+        return new ResponseEntity<>(transactionResponse, HttpStatusCode.valueOf(ex.getCode()));
+    }
+
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponse {
+public class UserResponseModel {
     @JsonProperty("txnId")
     private UUID detailsId;
     private UUID trackId;
@@ -25,7 +25,7 @@ public class UserResponse {
 
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
-    @Pattern(regexp="(^$|[0-9]{10})",message = "Please enter a valid mobile number")
+    @Pattern(regexp = "(^$|[0-9]{10})", message = "Please enter a valid mobile number")
     private String mobileNumber;
 
     @NotNull(message = "Please send the amount")

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmiDetails {
+public class EmiDetailsModel {
     private Integer lenderInfoId;
     private Integer loanDuration;
     private double interestRate;

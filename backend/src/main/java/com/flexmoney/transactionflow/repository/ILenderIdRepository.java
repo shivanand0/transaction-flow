@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ILenderIdRepository extends JpaRepository<LenderIdModel,Integer> {
+public interface ILenderIdRepository extends JpaRepository<LenderIdModel, Integer> {
 
     List<LenderIdModel> findAllByUserMobileNumber(String i);
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrackStageDTO {
+public class TrackStageRequestModel {
 
     @Enumerated(EnumType.STRING)
     private TrackStageModel.selectionStage selection;

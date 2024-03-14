@@ -1,7 +1,10 @@
 package com.flexmoney.transactionflow.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -20,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Builder
-public class EssentialDetails {
+public class EssentialDetailsModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty("txnId")
@@ -28,11 +31,9 @@ public class EssentialDetails {
     @NotNull(message = "Please send the userId")
     private Long userId;
 
-    private UUID trackId;
-
     @NotNull(message = "Please enter your mobile number")
     @NotBlank(message = "Please enter your mobile number")
-    @Pattern(regexp="(^$|[0-9]{10})",message = "Please enter a valid mobile number")
+    @Pattern(regexp = "(^$|[0-9]{10})", message = "Please enter a valid mobile number")
     private String mobileNumber;
 
     @NotNull(message = "Please send the amount")
